@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const instance = new (require('../'));
+
+console.dir(instance);

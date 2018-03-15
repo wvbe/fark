@@ -1,0 +1,33 @@
+{
+  "name": "fark",
+  "version": "0.0.1",
+  "description": "knoftobor, but better",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "bin": {
+    "fark": "./bin/fark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/wvbe/fark.git"
+  },
+  "keywords": [
+    "fark",
+    "knoftobor",
+    "cli",
+    "repository",
+    "management"
+  ],
+  "author": "wvbe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wvbe/fark/issues"
+  },
+  "homepage": "https://github.com/wvbe/fark#readme",
+  "dependencies": {
+    "ask-nicely": "^3.0.1",
+    "cross-spawn-async": "^2.2.5"
+  }
+}
