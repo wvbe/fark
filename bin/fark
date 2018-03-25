@@ -4,8 +4,7 @@
 const root = require('../src/ask');
 
 root.execute(process.argv.slice(2))
-	.then(result => {
-		result.forEach(res => console.log(res));
+	.then(() => {
 		process.exit(0);
 	})
 	.catch(error => {

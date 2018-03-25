@@ -1,13 +1,19 @@
-const { Command, MultiOption } = require('ask-nicely');
+const { Command, MultiOption, IsolatedOption } = require('ask-nicely');
 const glob = require('glob');
 const util = require('util');
 
 const filterDirectories = require('./primitives/filterDirectories');
-
+const helpController = require('./primitives/helpController');
 const app = new Command();
 
-app.addOption(new MultiOption('filters').setShort('f'));
-
+app.addOption(new MultiOption('filters').setShort('f').setDescription('For example "status:dirty".'));
+app.addOption(new IsolatedOption('help').setShort('h').setDescription('Shows you this help page'));
+app.addPreController(req => {
+	if (req.options.help) {
+		helpController(req);
+		return false;
+	}
+});
 app.setController(req => Promise.all([
 		util.promisify(glob)('./*/', {}),
 		[
@@ -32,6 +38,6 @@ app.setController(req => Promise.all([
 		// @TODO: Log to console, json, csv
 		// @TODO: Execute and log shell cmds
 		return directories;
-	});
+	}));
 
 module.exports = app;
