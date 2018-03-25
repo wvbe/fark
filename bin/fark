@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
 'use strict';
+const root = require('../src/ask');
 
-const instance = new (require('../'));
-
-console.dir(instance);
+root.execute(process.argv.slice(2))
+	.then(result => {
+		result.forEach(res => console.log(res));
+		process.exit(0);
+	})
+	.catch(error => {
+		console.log(error);
+		process.exit(1);
+	});
