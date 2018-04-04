@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+
 module.exports = {
 	name: 'system',
 
@@ -7,11 +8,23 @@ module.exports = {
 	dependencies: [],
 
 	// Describes the information that is retrieved by this informer
-	props: {
-		path: 'The full path to repo',
-		name: 'The directory name',
-		isGit: 'This is a git versioned repository'
-	},
+	props: [
+		{
+			name: 'path',
+			description: 'The full path to repo',
+			callback: ({ path }) => path
+		},
+		{
+			name: 'name',
+			description: 'The directory name',
+			callback: ({ name }) => name
+		},
+		{
+			name: 'is-git',
+			description: 'This is a git versioned repository',
+			callback: ({ isGit }) => isGit ? 'yes' : 'no'
+		}
+	],
 
 	// Should return Object or Promise.<Object>
 	retrieve: (_info, location) => ({

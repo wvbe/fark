@@ -1,5 +1,5 @@
-const fs = require('fs');
 const spawnProcess = require('../primitives/executeInDir');
+
 module.exports = {
 	name: 'git-status',
 
@@ -7,9 +7,13 @@ module.exports = {
 	dependencies: ['system'],
 
 	// Describes the information that is retrieved by this informer
-	props: {
-		isGitClean: 'Has a clean status'
-	},
+	props: [
+		{
+			name: 'status',
+			description: 'A clean or dirty status',
+			callback: ({ isGitClean }) => isGitClean ? 'clean' : 'dirty'
+		}
+	],
 
 	// Should return Object or Promise.<Object>
 	retrieve: ({ isGit, path }) => isGit ?

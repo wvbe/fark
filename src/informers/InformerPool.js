@@ -17,6 +17,12 @@ class InformerPool {
 		return this.informers[name]
 	}
 
+	getProp (name) {
+		return Object.keys(this.informers)
+			.reduce((props, informerName) => props.concat(this.informers[informerName].props), [])
+			.find(prop => prop.name === name);
+	}
+
 	filter (cb) {
 		return Object.keys(this.informers)
 			.map(name => this.informers[name])
@@ -70,10 +76,10 @@ class InformerPool {
 				// Register as pending
 				pending.push(informer);
 
-				// Start asymc
+				// Start async
 				Promise.resolve(callback(
-					informer,
-					informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
+						informer,
+						informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
 					))
 					.then(props => {
 						// Unregister as pending

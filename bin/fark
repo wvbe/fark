@@ -3,12 +3,8 @@
 'use strict';
 const root = require('../src/ask');
 
-const timeStart = Date.now();
 root.execute(process.argv.slice(2))
 	.then(() => {
-		const timeTotal = Date.now() - timeStart;
-		console.log('---');
-		console.log(timeTotal + ' ms');
 		process.exit(0);
 	})
 	.catch(error => {
