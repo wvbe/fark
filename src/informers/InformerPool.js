@@ -23,6 +23,12 @@ class InformerPool {
 			.find(prop => prop.name === name);
 	}
 
+	getFilter (name) {
+		return Object.keys(this.informers)
+			.reduce((props, informerName) => props.concat(this.informers[informerName].filters), [])
+			.find(filter => filter.name === name);
+	}
+
 	filter (cb) {
 		return Object.keys(this.informers)
 			.map(name => this.informers[name])
