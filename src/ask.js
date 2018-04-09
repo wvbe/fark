@@ -9,6 +9,7 @@ const helpController = require('./primitives/helpController');
 const InformerPool = require('./informers/InformerPool');
 
 const informerPool = new InformerPool([
+	require('./informers/fstatInformer'),
 	require('./informers/systemInformer'),
 	require('./informers/npmInformer'),
 	require('./informers/gitStatusInformer')
@@ -51,15 +52,14 @@ app.addOption(new MultiOption('props')
 
 const defaultTableOptions = {
 	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1
-}
+};
+
 app.setController(req => util.promisify(glob)('./*/', {})
 	.then(directories => {
-		const filterNames = req.options.filters.map(filter => filter.name);
-		const propNames = req.options.props.map(prop => prop.name);
 		const requiredInformers = informerPool
 			.toArray()
-			.filter(informer => propNames.some(prop => informer.props.some(p => p.name === prop)) ||
-				filterNames.some(filter => informer.filters.some(f => f.name === filter)));
+			.filter(informer => req.options.props.some(prop => informer.props.includes(prop)) ||
+                req.options.filters.some(filter => informer.filters.some(f => f.name === filter.name)));
 		const allInformers = informerPool.resolveDependencies(requiredInformers);
 
 		return Promise.all(directories.map(directory => informerPool.runDependencyTree(allInformers, (informer, info) => {
@@ -78,6 +78,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		data.splice(0, 0, req.options.props.map(prop => prop.name));
 		data.push(req.options.props.map(prop => prop.name));
 
+		console.group();
 		console.log(table(data, Object.assign({}, defaultTableOptions, {
 			columns: req.options.props.map(() => ({
 				alignment: 'left',
@@ -85,15 +86,18 @@ app.setController(req => util.promisify(glob)('./*/', {})
 			}))
 		})));
 
+		console.groupEnd();
 		console.log('  Directories: ' + results.length);
 		console.log('  Filters:     ' + (req.options.filters.length ?
 			req.options.filters
 				.map(filter => (filter.isNegation ? '~' : '') + [filter.name, ...filter.arguments].join(':'))
 				.join(', ') :
 			'-'));
+
 		console.log('  Props:       ' + (req.options.props.length ?
 			req.options.props.map(prop => prop.name).join(', ') :
 			req.options.props.length));
+
 		console.log('  Unused props: ' + informerPool.toArray()
 			.reduce((propNames, informer) => propNames.concat(informer.props
 				.filter(prop => !req.options.props.includes(prop))

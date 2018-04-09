@@ -45,9 +45,9 @@ module.exports = {
 			callback: (info, query) => info.path.includes(query)
 		},
 		{
-			name: 'dir-starts-with',
+			name: 'name-starts-with',
 			description: 'Only repositories whose directory starts with $1',
-			callback: (info, query) => info.basename.indexOf(query) === 0
+			callback: (info, query) => info.name.indexOf(query) === 0
 		}
 	]
 };
