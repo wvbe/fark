@@ -1,5 +1,7 @@
 const spawnProcess = require('../primitives/executeInDir');
 
+const getStatus = ({ isGit, isGitClean }) => !isGit ? null : isGitClean ? 'clean' : 'dirty';
+
 module.exports = {
 	name: 'git-status',
 
@@ -11,7 +13,7 @@ module.exports = {
 		{
 			name: 'status',
 			description: 'A clean or dirty status',
-			callback: ({ isGitClean }) => isGitClean ? 'clean' : 'dirty'
+			callback: getStatus
 		}
 	],
 
@@ -25,8 +27,17 @@ module.exports = {
 	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
 	filters: [
 		{
+			name: 'is-git',
+			callback: ({ isGit }) => isGit
+		},
+		{
 			name: 'status',
-			callback: ({ isGitClean }, state) => state === 'dirty' ? !isGitClean : isGitClean
+			callback: (info, state) => {
+				if (!state) {
+					return info.isGit
+				}
+				return state === getStatus(info);
+			}
 		}
 	]
 };

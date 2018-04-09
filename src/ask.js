@@ -10,6 +10,7 @@ const InformerPool = require('./informers/InformerPool');
 
 const informerPool = new InformerPool([
 	require('./informers/systemInformer'),
+	require('./informers/npmInformer'),
 	require('./informers/gitStatusInformer')
 ]);
 
@@ -56,6 +57,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		const filterNames = req.options.filters.map(filter => filter.name);
 		const propNames = req.options.props.map(prop => prop.name);
 		const requiredInformers = informerPool
+			.toArray()
 			.filter(informer => propNames.some(prop => informer.props.some(p => p.name === prop)) ||
 				filterNames.some(filter => informer.filters.some(f => f.name === filter)));
 		const allInformers = informerPool.resolveDependencies(requiredInformers);
@@ -68,7 +70,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		// Get, filter and transform the result list for table output
 		const data = results
 			// Filter results based on the --filter option
-			.filter(result => req.options.filters.every(filter => filter.callback(result, ...filter.arguments)))
+			.filter(result => req.options.filters.every(filter => filter.isNegation === !filter.callback(result, ...filter.arguments)))
 			// Map to a 2d array
 			.map(result => req.options.props.map(prop => prop.callback(result)));
 
@@ -92,6 +94,13 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		console.log('  Props:       ' + (req.options.props.length ?
 			req.options.props.map(prop => prop.name).join(', ') :
 			req.options.props.length));
+		console.log('  Unused props: ' + informerPool.toArray()
+			.reduce((propNames, informer) => propNames.concat(informer.props
+				.filter(prop => !req.options.props.includes(prop))
+				.map(prop => prop.name)
+			), [])
+			.sort()
+			.join(', '));
 		console.log('  Time:        ' + (Date.now() - timeStart) + 'ms');
 		console.log();
 	}));

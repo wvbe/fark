@@ -29,10 +29,8 @@ class InformerPool {
 			.find(filter => filter.name === name);
 	}
 
-	filter (cb) {
-		return Object.keys(this.informers)
-			.map(name => this.informers[name])
-			.filter(cb);
+	toArray () {
+		return Object.keys(this.informers).map(name => this.informers[name]);
 	}
 	resolveDependencies (myWishList) {
 		const wishList = myWishList.slice();
