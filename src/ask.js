@@ -43,8 +43,10 @@ app.addOption(new MultiOption('filters')
 	}))
 );
 
-app.addOption(new MultiOption('props')
-	.setShort('p')
+app.addOption('sort', 's', 'Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.');
+
+app.addOption(new MultiOption('columns')
+	.setShort('c')
 	.setDescription('Additional properties to show')
 	.setDefault(['name', 'status'], true)
 	.setResolver(props => props.map(prop => informerPool.getProp(prop)))
@@ -58,7 +60,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 	.then(directories => {
 		const requiredInformers = informerPool
 			.toArray()
-			.filter(informer => req.options.props.some(prop => informer.props.includes(prop)) ||
+			.filter(informer => req.options.columns.some(prop => informer.props.includes(prop)) ||
                 req.options.filters.some(filter => informer.filters.some(f => f.name === filter.name)));
 		const allInformers = informerPool.resolveDependencies(requiredInformers);
 
@@ -67,45 +69,59 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		})));
 	})
 	.then(results => {
+		// Prepare some info for sorting results
+		const sortInverse = req.options.sort && req.options.sort.charAt(0) === '~';
+		const sortColumnName = req.options.sort && req.options.sort.substr(sortInverse ? 1 : 0);
+		const sortIndex = Math.max(sortColumnName ?
+			req.options.columns.findIndex(column => column.name === sortColumnName) :
+			0, 0);
+
 		// Get, filter and transform the result list for table output
 		const data = results
 			// Filter results based on the --filter option
 			.filter(result => req.options.filters.every(filter => filter.isNegation === !filter.callback(result, ...filter.arguments)))
 			// Map to a 2d array
-			.map(result => req.options.props.map(prop => prop.callback(result)));
+			.map(result => req.options.columns.map(prop => prop.callback(result)))
+			.sort((a, b) => (sortInverse ? b : a)[sortIndex].localeCompare((sortInverse ? a : b)[sortIndex]));
+
 
 		// Add the column names to the top and bottom of the table
-		data.splice(0, 0, req.options.props.map(prop => prop.name));
-		data.push(req.options.props.map(prop => prop.name));
+		data.splice(0, 0, req.options.columns.map(prop => prop.name));
+		data.push(req.options.columns.map(prop => prop.name));
 
 		console.group();
 		console.log(table(data, Object.assign({}, defaultTableOptions, {
-			columns: req.options.props.map(() => ({
+			columns: req.options.columns.map(() => ({
 				alignment: 'left',
 				minWidth: 10
 			}))
 		})));
-
 		console.groupEnd();
-		console.log('  Directories: ' + results.length);
-		console.log('  Filters:     ' + (req.options.filters.length ?
-			req.options.filters
-				.map(filter => (filter.isNegation ? '~' : '') + [filter.name, ...filter.arguments].join(':'))
-				.join(', ') :
-			'-'));
 
-		console.log('  Props:       ' + (req.options.props.length ?
-			req.options.props.map(prop => prop.name).join(', ') :
-			req.options.props.length));
-
-		console.log('  Unused props: ' + informerPool.toArray()
-			.reduce((propNames, informer) => propNames.concat(informer.props
-				.filter(prop => !req.options.props.includes(prop))
-				.map(prop => prop.name)
-			), [])
-			.sort()
-			.join(', '));
-		console.log('  Time:        ' + (Date.now() - timeStart) + 'ms');
+		const stats = {
+			directories: results.length,
+			filterNames: req.options.filters.length ?
+				req.options.filters
+					.map(filter => (filter.isNegation ? '~' : '') + [filter.name, ...filter.arguments].join(':'))
+					.join(', ') :
+				'-',
+			propNames: req.options.columns.length ?
+				req.options.columns.map(prop => prop.name).join(', ') :
+				req.options.columns.length,
+			unusedPropNames: informerPool.toArray()
+				.reduce((propNames, informer) => propNames.concat(informer.props
+					.filter(prop => !req.options.columns.includes(prop))
+					.map(prop => prop.name)
+				), [])
+				.sort()
+				.join(', '),
+			time: (Date.now() - timeStart) + 'ms'
+		};
+		console.log('  Directories:  ' + stats.directories);
+		console.log('  Filters:      ' + stats.filterNames);
+		console.log('  Props:        ' + stats.propNames);
+		console.log('  Unused props: ' + stats.unusedPropNames);
+		console.log('  Time:         ' + stats.time);
 		console.log();
 	}));
 

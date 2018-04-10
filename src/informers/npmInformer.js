@@ -11,10 +11,15 @@ module.exports = {
 
 	// Describes the information that is retrieved by this informer
 	props: [
+		...['name', 'description', 'version', 'license', 'homepage'].map(prop => ({
+			name: 'npm:' + prop,
+			description: 'The ' + prop + ' in package.json',
+			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson[prop] || null
+		})),
 		{
-			name: 'npm:version',
-			description: 'The version number in package.json',
-			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson.version || null
+			name: 'npm:is-private',
+			description: 'Is this a private package',
+			callback: ({ npmPackageJson }) => npmPackageJson.isPrivate ? 'yes' : 'no'
 		},
 		{
 			name: 'is-npm',
@@ -43,6 +48,10 @@ module.exports = {
 		{
 			name: 'is-npm',
 			callback: ({ isNpm }) => !!isNpm
+		},
+		{
+			name: 'is-npm-private',
+			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson.private
 		}
 	]
 };
