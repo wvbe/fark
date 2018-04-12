@@ -5,6 +5,7 @@ const util = require('util');
 const { table } = require('table');
 const { Command, MultiOption, IsolatedOption } = require('ask-nicely');
 
+const executeInDir = require('./primitives/executeInDir');
 const helpController = require('./primitives/helpController');
 const InformerPool = require('./informers/InformerPool');
 
@@ -133,6 +134,10 @@ app.addOption(new MultiOption('columns')
 	.setDefault(['name', 'status'], true)
 	.setResolver(props => props.map(prop => informerPool.getProp(prop)))
 );
+app.addOption(new MultiOption('run')
+	.setShort('$')
+	.setDescription('Run this command in every result directory')
+	.isInfinite(true));
 
 const defaultTableOptions = {
 	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1
@@ -150,6 +155,10 @@ app.setController(req => util.promisify(glob)('./*/', {})
 			return informer.retrieve(info, directory);
 		})));
 	})
+
+	// Filter irrelevant results based on the --filter option
+	.then(results => results.filter(result => req.options.filters.every(filter => filter.isNegation === !filter.callback(result, ...filter.arguments))))
+
 	.then(results => {
 		// Prepare some info for sorting results
 		const sortInverse = req.options.sort && req.options.sort.charAt(0) === '~';
@@ -158,10 +167,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 			req.options.columns.findIndex(column => column.name === sortColumnName) :
 			0, 0);
 
-		// Get, filter and transform the result list for table output
 		const data = results
-			// Filter results based on the --filter option
-			.filter(result => req.options.filters.every(filter => filter.isNegation === !filter.callback(result, ...filter.arguments)))
 			// Map to a 2d array
 			.map(result => req.options.columns.map(prop => prop.callback(result)))
 			.sort((a, b) => (sortInverse ? b : a)[sortIndex].localeCompare((sortInverse ? a : b)[sortIndex]));
@@ -205,6 +211,18 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		console.log('  Unused props: ' + stats.unusedPropNames);
 		console.log('  Time:         ' + stats.time);
 		console.log();
+
+		if (req.options.run.length) {
+			return results.reduce((deferred, result) => {
+				return deferred.then(() => executeInDir(result.path, req.options.run))
+					.then(messages => {
+						console.log(result.path);
+						console.group();
+						messages.forEach(message => console[message.type === 'stdout' ? 'error' : 'log'](message.data));
+						console.groupEnd();
+					});
+			}, Promise.resolve());
+		}
 	}));
 
 module.exports = app;
