@@ -1,3 +1,37 @@
+A tool to find certain properties about each in a list of directories, such as the current git branch, npm version or
+modification date. You can also filter out a set that matches specific criteria.
+
+__In the future:__ execute shell commands in each of the results.
+
+```sh
+$ fark -c path status is-npm -f is-git
+```
+
+Could yield:
+
+```
+  ╔═════════════════════════════════════════════════╤════════╤════════╗
+  ║ path                                            │ status │ is-npm ║
+  ╟─────────────────────────────────────────────────┼────────┼────────╢
+  ║ /git/0x.ee                                      │ clean  │ yes    ║
+  ║ /git/ask-nicely                                 │ dirty  │ yes    ║
+  ║ /git/fark                                       │ dirty  │ yes    ║
+  ║ /git/gatsby                                     │ clean  │ yes    ║
+  ║ /git/george                                     │ dirty  │ yes    ║
+  ║ /git/get-rekt                                   │ dirty  │ yes    ║
+  ║ /git/gh-pages-bin                               │ dirty  │ yes    ║
+  ║ /git/hot-reload-all-the-things                  │ dirty  │ yes    ║
+  ║ /git/wvbe.github.io                             │ dirty  │ no     ║
+  ║ /git/wyb.be                                     │ clean  │ yes    ║
+  ║ /git/xml-renderer                               │ clean  │ yes    ║
+  ╟─────────────────────────────────────────────────┼────────┼────────╢
+  ║ path                                            │ status │ is-npm ║
+  ╚═════════════════════════════════════════════════╧════════╧════════╝
+```
+
+The columns and filters are designed to be easily pluggable, and use a dependency system in order to retrieve the
+required bits of information in the right time and with the lowest effort.
+
 # Options
 
 __-c --columns__

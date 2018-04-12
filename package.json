@@ -1,8 +1,7 @@
 {
   "name": "fark",
-  "version": "0.0.1",
-  "description": "knoftobor, but better",
-  "main": "index.js",
+  "version": "1.0.0",
+  "description": "A tool to work with the mess of git repositories that is your projects folder.",
   "scripts": {
     "test": "test"
   },
@@ -29,7 +28,6 @@
   "dependencies": {
     "ask-nicely": "^3.0.1",
     "cross-spawn-async": "^2.2.5",
-    "git-remote-origin-url": "^2.0.0",
     "glob": "^7.1.2",
     "table": "^4.0.3"
   }
