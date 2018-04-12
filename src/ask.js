@@ -17,21 +17,103 @@ const informerPool = new InformerPool([
 
 const app = new Command();
 
+/*
+	The --help flag
+*/
 app.addOption(new IsolatedOption('help')
 	.setShort('h')
 	.setDescription('Shows you this help page')
 );
 
+const NO_NAME = '<no name>',
+	NO_DESCRIPTION = '<no description>',
+	NONE = '<none>';
+
+function concatAllOfAncestors (command, propertyName) {
+	return (command.parent
+		? concatAllOfAncestors(command.parent, propertyName)
+		: []).concat(command[propertyName]);
+}
+
 app.addPreController(req => {
-	if (req.options.help) {
-		helpController(req);
-		return false;
+	if (!req.options.help) {
+		return;
 	}
+
+	let command = req.command;
+
+	console.log(``);
+	// console.log(`Name:            ${command.name || NO_NAME}`);
+	// console.log(`Description:     ${command.description || NO_DESCRIPTION}`);
+	//
+	// console.log(`Child commands:  ${command.children.length || NONE}`);
+	// command.children
+	// 	.sort((a, b) => a.name.localeCompare(b.name))
+	// 	.forEach(cmd =>{
+	// 		console.log(`    ${cmd.name}    ${cmd.description || NO_DESCRIPTION}`);
+	// 	});
+	//
+	// let parameters = concatAllOfAncestors(command, 'parameters');
+	// console.log(`Parameters:      ${parameters.length || NONE}`);
+	// parameters
+	// 	.forEach(param => {
+	// 		console.log(`    {${param.name}}    ${param.description || NO_DESCRIPTION}`);
+	// 	});
+
+	let options = concatAllOfAncestors(command, 'options');
+	console.log(`Options:         ${options.length || NONE}`);
+	options
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.forEach(option => {
+			console.log([
+				'',
+				option.short ? '-' + option.short : '  ',
+				'--' + option.name,
+				option.required ? '* ' : '' + (option.description || NO_DESCRIPTION)
+			].join('    '));
+		});
+
+	let props = informerPool
+		.toArray()
+		.reduce((propNames, informer) => propNames.concat(informer.props), []);
+	console.log(`Columns:         ${props.length || NONE}`);
+	props
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.forEach(option => {
+			console.log([
+				'',
+				option.name,
+				option.description || NO_DESCRIPTION
+			].join('    '));
+		});
+
+
+	let filters = informerPool
+		.toArray()
+		.reduce((propNames, informer) => propNames.concat(informer.filters), []);
+	console.log(`Filters:         ${filters.length || NONE}`);
+	filters
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.forEach(filter => {
+			console.log([
+				'',
+				filter.name,
+				filter.description || NO_DESCRIPTION
+			].join('    '));
+		});
+
+
+	console.log(``);
+
+	return false;
 });
 
+/*
+	Normal use
+*/
 app.addOption(new MultiOption('filters')
 	.setShort('f')
-	.setDescription('For example "status:dirty".')
+	.setDescription('Show only results that match all given filters. Use "~" to invert the filter response, and ":" for additional filter arguments.')
 	.setResolver(filters => filters.map(filter => {
 		const isNegation = filter.charAt(0) === '~';
 		const [name, ...arguments] = filter.substr(isNegation ? 1 : 0).split(':');
@@ -47,7 +129,7 @@ app.addOption('sort', 's', 'Sort on this column. Use the negation character ("~"
 
 app.addOption(new MultiOption('columns')
 	.setShort('c')
-	.setDescription('Additional properties to show')
+	.setDescription('Additional properties to show for each directory.')
 	.setDefault(['name', 'status'], true)
 	.setResolver(props => props.map(prop => informerPool.getProp(prop)))
 );
