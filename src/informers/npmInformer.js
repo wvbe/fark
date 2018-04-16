@@ -11,19 +11,22 @@ module.exports = {
 
 	// Describes the information that is retrieved by this informer
 	props: [
+		// @TODO: Let props take arguments similar to filters
 		...['name', 'description', 'version', 'license', 'homepage'].map(prop => ({
-			name: 'npm:' + prop,
+			name: 'npm-' + prop,
 			description: 'The ' + prop + ' in package.json',
 			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson[prop] || null
 		})),
+		// @TODO: Let props in some way easily be converted
 		{
-			name: 'npm:is-private',
+			name: 'is-npm-private',
 			description: 'Is this a private package',
+			// This prop deliberately does not check if package.json is actually valid for npm
 			callback: ({ npmPackageJson }) => npmPackageJson.isPrivate ? 'yes' : 'no'
 		},
 		{
 			name: 'is-npm',
-			description: 'The directory name',
+			description: 'This is an npm package',
 			callback: ({ isNpm }) => isNpm ? 'yes' : 'no'
 		}
 	],
@@ -33,7 +36,9 @@ module.exports = {
 		try {
 			const manifest = JSON.parse(fs.readFileSync(path.join(location, 'package.json'), 'utf8'));
 			return {
-				isNpm: true,
+				// isNpm can only be true if the manifest describes the two minimum requirements: name and version
+				// https://docs.npmjs.com/getting-started/using-a-package.json
+				isNpm: !!manifest.name && manifest.version,
 				npmPackageJson: manifest
 			}
 		} catch (e) {
@@ -47,10 +52,12 @@ module.exports = {
 	filters: [
 		{
 			name: 'is-npm',
+			describe: 'There is a package.json that makes it an npm package',
 			callback: ({ isNpm }) => !!isNpm
 		},
 		{
 			name: 'is-npm-private',
+			describe: 'The package is marked as private, not to be published',
 			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson.private
 		}
 	]

@@ -36,18 +36,18 @@ module.exports = {
 	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
 	filters: [
 		{
-			name: 'is-git-controlled',
+			name: 'is-git',
 			callback: ({ isGit }) => isGit
 		},
 		{
 			name: 'path-contains',
 			description: 'Only repositories whose full path contains $1',
-			callback: (info, query) => info.path.includes(query)
+			callback: ({ path }, query) => path.includes(query)
 		},
 		{
 			name: 'name-starts-with',
 			description: 'Only repositories whose directory starts with $1',
-			callback: (info, query) => info.name.indexOf(query) === 0
+			callback: ({ name }, query) => name.indexOf(query) === 0
 		}
 	]
 };

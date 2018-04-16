@@ -19,13 +19,13 @@ class InformerPool {
 
 	getProp (name) {
 		return Object.keys(this.informers)
-			.reduce((props, informerName) => props.concat(this.informers[informerName].props), [])
+			.reduce((props, informerName) => props.concat(this.informers[informerName].props || []), [])
 			.find(prop => prop.name === name);
 	}
 
 	getFilter (name) {
 		return Object.keys(this.informers)
-			.reduce((props, informerName) => props.concat(this.informers[informerName].filters), [])
+			.reduce((props, informerName) => props.concat(this.informers[informerName].filters || []), [])
 			.find(filter => filter.name === name);
 	}
 

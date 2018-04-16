@@ -3,7 +3,17 @@ const informers = new InformerPool([
 	{ name: 'path',    dependencies: [],       retrieve: () => ({ a: 'bzt' }) },
 	{ name: 'test-1',  dependencies: ['path'], retrieve: (props) => ({ b: 'arf', received: props }) },
 	{ name: 'test-1b', dependencies: ['path'], retrieve: () => ({ c: true }) },
-	{ name: 'test-2',  dependencies: ['xxxx'], retrieve: () => true }
+	{
+		name: 'test-2',
+		dependencies: ['derp'],
+		retrieve: () => true,
+        props: [
+            { name: 'my-prop' }
+        ],
+        filters: [
+            { name: 'my-filter' }
+        ]
+	}
 ]);
 
 describe('informerManager', () => {
@@ -29,11 +39,30 @@ describe('informerManager', () => {
 	it('runDependencyTree', () => {
 		expect.assertions(3);
 
-		return informers.runDependencyTree(informers.resolveDependencies([informers.getInformer('test-1')]), (informer, props) => informer.retrieve(props))
+		// Raise whatever is necessary to get the "test-1" informer to work
+		return informers.runDependencyTree(
+				informers.resolveDependencies([informers.getInformer('test-1')]),
+				(informer, props) => informer.retrieve(props)
+			)
 			.then(results => {
-				expect(results.a).toBeTruthy();
-				expect(results.b).toBeTruthy();
+				// Test a value provided by a dependency informer
+				expect(results.a).toBe('bzt');
+
+				// Test the value from test-1 informer itself
+				expect(results.b).toBe('arf');
+
+				// Test a value that should not be provided
 				expect(results.c).toBeUndefined();
 			});
 	});
+
+    it('getProp', () => {
+        expect(informers.getProp('my-prop')).toBeTruthy();
+        expect(informers.getProp('derp')).toBeUndefined();
+    });
+
+    it('getFilter', () => {
+        expect(informers.getFilter('my-filter')).toBeTruthy();
+        expect(informers.getFilter('derp')).toBeUndefined();
+    });
 });

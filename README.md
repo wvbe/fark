@@ -4,6 +4,7 @@ modification date. You can also filter out a set that matches specific criteria.
 __In the future:__ execute shell commands in each of the results.
 
 ```sh
+$ npm install fark -g
 $ fark -c path status is-npm -f is-git
 ```
 

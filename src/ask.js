@@ -16,6 +16,20 @@ const informerPool = new InformerPool([
 	require('./informers/gitStatusInformer')
 ]);
 
+function consoleLogTable (columns, data) {
+    // Add the column names to the top and bottom of the table
+    data.splice(0, 0, columns);
+    data.push(columns);
+
+    console.group();
+    console.log(table(data, Object.assign({}, defaultTableOptions, {
+        columns: columns.map(() => ({
+            alignment: 'left',wrapWord: true
+        }))
+    })));
+    console.groupEnd();
+}
+
 const app = new Command();
 
 /*
@@ -43,65 +57,36 @@ app.addPreController(req => {
 
 	let command = req.command;
 
-	console.log(``);
-	// console.log(`Name:            ${command.name || NO_NAME}`);
-	// console.log(`Description:     ${command.description || NO_DESCRIPTION}`);
-	//
-	// console.log(`Child commands:  ${command.children.length || NONE}`);
-	// command.children
-	// 	.sort((a, b) => a.name.localeCompare(b.name))
-	// 	.forEach(cmd =>{
-	// 		console.log(`    ${cmd.name}    ${cmd.description || NO_DESCRIPTION}`);
-	// 	});
-	//
-	// let parameters = concatAllOfAncestors(command, 'parameters');
-	// console.log(`Parameters:      ${parameters.length || NONE}`);
-	// parameters
-	// 	.forEach(param => {
-	// 		console.log(`    {${param.name}}    ${param.description || NO_DESCRIPTION}`);
-	// 	});
+	console.log('Options');
+    consoleLogTable(['short', 'long', 'description', 'required'], concatAllOfAncestors(command, 'options')
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(option => [
+                option.short ? '-' + option.short : '',
+                '--' + option.name,
+            option.description ? option.description : NO_DESCRIPTION,
+                option.required ? 'yes' : 'no'
+            ]));
 
-	let options = concatAllOfAncestors(command, 'options');
-	console.log(`Options:         ${options.length || NONE}`);
-	options
+    console.log(`Columns`);
+    consoleLogTable(['name', 'description'], informerPool
+        .toArray()
+        .reduce((propNames, informer) => propNames.concat(informer.props), [])
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(prop => [
+            prop.name,
+            prop.description ? prop.description.match(/.{1,2}/g).join('#') : NO_DESCRIPTION
+        ]));
+
+
+    console.log(`Filters`);
+	consoleLogTable(['name', 'description'], informerPool
+        .toArray()
+        .reduce((propNames, informer) => propNames.concat(informer.filters), [])
 		.sort((a, b) => a.name.localeCompare(b.name))
-		.forEach(option => {
-			console.log([
-				'',
-				option.short ? '-' + option.short : '  ',
-				'--' + option.name,
-				option.required ? '* ' : '' + (option.description || NO_DESCRIPTION)
-			].join('    '));
-		});
-
-	let props = informerPool
-		.toArray()
-		.reduce((propNames, informer) => propNames.concat(informer.props), []);
-	console.log(`Columns:         ${props.length || NONE}`);
-	props
-		.sort((a, b) => a.name.localeCompare(b.name))
-		.forEach(option => {
-			console.log([
-				'',
-				option.name,
-				option.description || NO_DESCRIPTION
-			].join('    '));
-		});
-
-
-	let filters = informerPool
-		.toArray()
-		.reduce((propNames, informer) => propNames.concat(informer.filters), []);
-	console.log(`Filters:         ${filters.length || NONE}`);
-	filters
-		.sort((a, b) => a.name.localeCompare(b.name))
-		.forEach(filter => {
-			console.log([
-				'',
-				filter.name,
-				filter.description || NO_DESCRIPTION
-			].join('    '));
-		});
+        .map(filter => [
+            filter.name,
+            filter.description ? filter.description.match(/.{1,2}/g).join('#') : NO_DESCRIPTION
+        ]));
 
 
 	console.log(``);
@@ -183,19 +168,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 			.map(result => req.options.columns.map(prop => prop.callback(result)))
 			.sort((a, b) => (req.options.sort.reverse ? b : a)[sortIndex].localeCompare((req.options.sort.reverse ? a : b)[sortIndex]));
 
-
-		// Add the column names to the top and bottom of the table
-		data.splice(0, 0, req.options.columns.map(prop => prop.name));
-		data.push(req.options.columns.map(prop => prop.name));
-
-		console.group();
-		console.log(table(data, Object.assign({}, defaultTableOptions, {
-			columns: req.options.columns.map(() => ({
-				alignment: 'left',
-				minWidth: 10
-			}))
-		})));
-		console.groupEnd();
+		consoleLogTable(req.options.columns.map(prop => prop.name), data);
 
 		const stats = {
 			directories: results.length,
