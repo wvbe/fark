@@ -3,7 +3,7 @@ const timeStart = Date.now();
 const glob = require('glob');
 const util = require('util');
 const { table } = require('table');
-const { Command, MultiOption, IsolatedOption } = require('ask-nicely');
+const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
 
 const executeInDir = require('./primitives/executeInDir');
 const helpController = require('./primitives/helpController');
@@ -126,7 +126,22 @@ app.addOption(new MultiOption('filters')
 	}))
 );
 
-app.addOption('sort', 's', 'Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.');
+app.addOption(new Option('sort')
+    .setShort('s')
+    .setDescription('Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.')
+    .setResolver(sort => {
+        if (typeof sort !== 'string') {
+            return {
+                prop: null
+            };
+        }
+        const reverse = sort && sort.charAt(0) === '~';
+
+        return {
+            prop: informerPool.getProp(sort.substr(reverse ? 1 : 0)),
+            reverse
+        };
+    }));
 
 app.addOption(new MultiOption('columns')
 	.setShort('c')
@@ -161,16 +176,12 @@ app.setController(req => util.promisify(glob)('./*/', {})
 
 	.then(results => {
 		// Prepare some info for sorting results
-		const sortInverse = req.options.sort && req.options.sort.charAt(0) === '~';
-		const sortColumnName = req.options.sort && req.options.sort.substr(sortInverse ? 1 : 0);
-		const sortIndex = Math.max(sortColumnName ?
-			req.options.columns.findIndex(column => column.name === sortColumnName) :
-			0, 0);
+		const sortIndex = Math.max(req.options.columns.indexOf(req.options.sort.prop), 0);
 
 		const data = results
 			// Map to a 2d array
 			.map(result => req.options.columns.map(prop => prop.callback(result)))
-			.sort((a, b) => (sortInverse ? b : a)[sortIndex].localeCompare((sortInverse ? a : b)[sortIndex]));
+			.sort((a, b) => (req.options.sort.reverse ? b : a)[sortIndex].localeCompare((req.options.sort.reverse ? a : b)[sortIndex]));
 
 
 		// Add the column names to the top and bottom of the table
@@ -196,19 +207,11 @@ app.setController(req => util.promisify(glob)('./*/', {})
 			propNames: req.options.columns.length ?
 				req.options.columns.map(prop => prop.name).join(', ') :
 				req.options.columns.length,
-			unusedPropNames: informerPool.toArray()
-				.reduce((propNames, informer) => propNames.concat(informer.props
-					.filter(prop => !req.options.columns.includes(prop))
-					.map(prop => prop.name)
-				), [])
-				.sort()
-				.join(', '),
 			time: (Date.now() - timeStart) + 'ms'
 		};
 		console.log('  Directories:  ' + stats.directories);
 		console.log('  Filters:      ' + stats.filterNames);
 		console.log('  Props:        ' + stats.propNames);
-		console.log('  Unused props: ' + stats.unusedPropNames);
 		console.log('  Time:         ' + stats.time);
 		console.log();
 
