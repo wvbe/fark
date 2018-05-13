@@ -37,6 +37,7 @@ module.exports = {
 	filters: [
 		{
 			name: 'is-git',
+			description: 'Only repositories versioned in git',
 			callback: ({ isGit }) => isGit
 		},
 		{

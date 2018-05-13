@@ -4,93 +4,24 @@ const glob = require('glob');
 const util = require('util');
 const { table } = require('table');
 const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
-
 const executeInDir = require('./primitives/executeInDir');
-const helpController = require('./primitives/helpController');
-const InformerPool = require('./informers/InformerPool');
 
-const informerPool = new InformerPool([
-	require('./informers/fstatInformer'),
-	require('./informers/systemInformer'),
-	require('./informers/npmInformer'),
-	require('./informers/gitStatusInformer')
-]);
-
-function consoleLogTable (columns, data) {
-    // Add the column names to the top and bottom of the table
-    data.splice(0, 0, columns);
-    data.push(columns);
-
-    console.group();
-    console.log(table(data, Object.assign({}, defaultTableOptions, {
-        columns: columns.map(() => ({
-            alignment: 'left',wrapWord: true
-        }))
-    })));
-    console.groupEnd();
-}
-
+const informerPool = require('./informerPool');
 const app = new Command();
 
 /*
 	The --help flag
 */
+const logTheHelpPage = require('./shenanigans/logTheHelpPage');
 app.addOption(new IsolatedOption('help')
 	.setShort('h')
 	.setDescription('Shows you this help page')
 );
-
-const NO_NAME = '<no name>',
-	NO_DESCRIPTION = '<no description>',
-	NONE = '<none>';
-
-function concatAllOfAncestors (command, propertyName) {
-	return (command.parent
-		? concatAllOfAncestors(command.parent, propertyName)
-		: []).concat(command[propertyName]);
-}
-
 app.addPreController(req => {
 	if (!req.options.help) {
 		return;
 	}
-
-	let command = req.command;
-
-	console.log('Options');
-    consoleLogTable(['short', 'long', 'description', 'required'], concatAllOfAncestors(command, 'options')
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(option => [
-                option.short ? '-' + option.short : '',
-                '--' + option.name,
-            option.description ? option.description : NO_DESCRIPTION,
-                option.required ? 'yes' : 'no'
-            ]));
-
-    console.log(`Columns`);
-    consoleLogTable(['name', 'description'], informerPool
-        .toArray()
-        .reduce((propNames, informer) => propNames.concat(informer.props), [])
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(prop => [
-            prop.name,
-            prop.description ? prop.description.match(/.{1,2}/g).join('#') : NO_DESCRIPTION
-        ]));
-
-
-    console.log(`Filters`);
-	consoleLogTable(['name', 'description'], informerPool
-        .toArray()
-        .reduce((propNames, informer) => propNames.concat(informer.filters), [])
-		.sort((a, b) => a.name.localeCompare(b.name))
-        .map(filter => [
-            filter.name,
-            filter.description ? filter.description.match(/.{1,2}/g).join('#') : NO_DESCRIPTION
-        ]));
-
-
-	console.log(``);
-
+    logTheHelpPage(req.command, req.options.help === 'md');
 	return false;
 });
 
@@ -139,9 +70,21 @@ app.addOption(new MultiOption('run')
 	.setDescription('Run this command in every result directory')
 	.isInfinite(true));
 
-const defaultTableOptions = {
-	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1
-};
+function consoleLogTable (columns, data) {
+    // Add the column names to the top and bottom of the table
+    data.splice(0, 0, columns);
+    data.push(columns);
+
+    console.group();
+    console.log(table(data, {
+        drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1,
+        columns: columns.map(() => ({
+            alignment: 'left',
+            wrapWord: true
+        }))
+    }));
+    console.groupEnd();
+}
 
 app.setController(req => util.promisify(glob)('./*/', {})
 	.then(directories => {

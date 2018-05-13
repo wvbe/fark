@@ -24,7 +24,7 @@ module.exports = {
 	props: [
 		{
 			name: 'status',
-			description: 'A clean or dirty status',
+			description: 'Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions.',
 			callback: ({isGit, gitChanges }) => !isGit ?
                 null :
                 (gitChanges
@@ -32,7 +32,8 @@ module.exports = {
                     .split('')
                     .sort()
                     .filter((a,i,aa) => aa.indexOf(a) === i)
-                    .join('') || 'clean')
+                    .join('')
+					.replace('?', 'U') || '-')
 		}
 	],
 
@@ -54,13 +55,8 @@ module.exports = {
 	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
 	filters: [
 		{
-			name: 'is-git',
-			description: 'Only git projects',
-			callback: ({ isGit }) => isGit
-		},
-		{
 			name: 'status',
-			description: 'filter by clean, dirty, or any combination of ? (unstaged), a (added), M (modded) or D (deleted)',
+			description: 'filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted)',
 			callback: ({ isGit, isGitClean, gitChanges }, state) => {
 				if (!isGit) {
 					// The object is not in git at all
@@ -83,9 +79,11 @@ module.exports = {
 
 				// If the input were to be "md", would match all repos that has either a modification or deletion
 				return state
+					.toLowerCase()
+					.replace('u', '?')
 					.split('')
 					.some(changeType => gitChanges
-						.some(gitChange => changeType.toLowerCase() === gitChange.type.toLowerCase())
+						.some(gitChange => changeType === gitChange.type.toLowerCase())
 					);
 			}
 		},
@@ -96,7 +94,7 @@ module.exports = {
 			{ flag: 'M', name: 'modification' }
 		].map(chagneType => ({
 			name: 'has-' + chagneType.name,
-			description: 'Wether the repository has any, or a specific file marked as ' + chagneType.name,
+			description: 'Wether the repository has any, or a file $1 marked as ' + chagneType.name,
 			callback: ({ isGit, gitChanges }, fileName) => fileName ?
 				gitChanges.some(change => change.type.includes(chagneType.flag) && change.file === fileName) :
 				gitChanges.some(change => change.type.includes(chagneType.flag))

@@ -17,7 +17,7 @@ module.exports = {
 			description: 'The ' + prop + ' in package.json',
 			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson[prop] || null
 		})),
-		// @TODO: Let props in some way easily be converted
+		// @TODO: Let props in some way easily be converted to filters
 		{
 			name: 'is-npm-private',
 			description: 'Is this a private package',
