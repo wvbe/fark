@@ -1,14 +1,14 @@
 const spawnProcess = require('../primitives/executeInDir');
 
 function getWordsOrQuotedPhrases (myString) {
-    //The parenthesis in the regex creates a captured group within the quotes
-    const pattern = /[^\s"]+|"([^"]*)"/gi;
-    const results = [];
+	//The parenthesis in the regex creates a captured group within the quotes
+	const pattern = /[^\s"]+|"([^"]*)"/gi;
+	const results = [];
 
-    let match = pattern.exec(myString);
-    while (match !== null) {
-    	results.push(match[1] || match[0]);
-        match = pattern.exec(myString);
+	let match = pattern.exec(myString);
+	while (match !== null) {
+		results.push(match[1] || match[0]);
+		match = pattern.exec(myString);
 	}
 
 	return results;
@@ -26,13 +26,13 @@ module.exports = {
 			name: 'status',
 			description: 'Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions.',
 			callback: ({isGit, gitChanges }) => !isGit ?
-                null :
-                (gitChanges
-                    .reduce((letters, change) => letters + change.type, '')
-                    .split('')
-                    .sort()
-                    .filter((a,i,aa) => aa.indexOf(a) === i)
-                    .join('')
+				null :
+				(gitChanges
+					.reduce((letters, change) => letters + change.type, '')
+					.split('')
+					.sort()
+					.filter((a,i,aa) => aa.indexOf(a) === i)
+					.join('')
 					.replace('?', 'U') || '-')
 		}
 	],
@@ -42,14 +42,15 @@ module.exports = {
 		spawnProcess(path, ['git', 'status', '--porcelain'])
 			.then((messages) => ({
 				isGitClean: !!messages.length,
-                gitChanges: messages
-					.reduce((lines, message) => lines.concat(message.data.split('\n')), [])
-                    .filter(line => !!line)
+				gitChanges: messages
+					.reduce((lines, message) => lines + message.data, '')
+					.split('\n')
+					.filter(line => !!line)
 					.map(line => {
 						const [type, file] = getWordsOrQuotedPhrases(line);
 						return { type, file };
 					})
-            })) :
+			})) :
 		{ isGitClean: false, gitChanges: [] },
 
 	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2

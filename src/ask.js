@@ -21,7 +21,7 @@ app.addPreController(req => {
 	if (!req.options.help) {
 		return;
 	}
-    logTheHelpPage(req.command, req.options.help === 'md');
+	logTheHelpPage(req.command, req.options.help === 'md');
 	return false;
 });
 
@@ -43,21 +43,21 @@ app.addOption(new MultiOption('filters')
 );
 
 app.addOption(new Option('sort')
-    .setShort('s')
-    .setDescription('Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.')
-    .setResolver(sort => {
-        if (typeof sort !== 'string') {
-            return {
-                prop: null
-            };
-        }
-        const reverse = sort && sort.charAt(0) === '~';
+	.setShort('s')
+	.setDescription('Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.')
+	.setResolver(sort => {
+		if (typeof sort !== 'string') {
+			return {
+				prop: null
+			};
+		}
+		const reverse = sort && sort.charAt(0) === '~';
 
-        return {
-            prop: informerPool.getProp(sort.substr(reverse ? 1 : 0)),
-            reverse
-        };
-    }));
+		return {
+			prop: informerPool.getProp(sort.substr(reverse ? 1 : 0)),
+			reverse
+		};
+	}));
 
 app.addOption(new MultiOption('columns')
 	.setShort('c')
@@ -71,19 +71,19 @@ app.addOption(new MultiOption('run')
 	.isInfinite(true));
 
 function consoleLogTable (columns, data) {
-    // Add the column names to the top and bottom of the table
-    data.splice(0, 0, columns);
-    data.push(columns);
+	// Add the column names to the top and bottom of the table
+	data.splice(0, 0, columns);
+	data.push(columns);
 
-    console.group();
-    console.log(table(data, {
-        drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1,
-        columns: columns.map(() => ({
-            alignment: 'left',
-            wrapWord: true
-        }))
-    }));
-    console.groupEnd();
+	console.group();
+	console.log(table(data, {
+		drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1,
+		columns: columns.map(() => ({
+			alignment: 'left',
+			wrapWord: true
+		}))
+	}));
+	console.groupEnd();
 }
 
 app.setController(req => util.promisify(glob)('./*/', {})
@@ -91,7 +91,7 @@ app.setController(req => util.promisify(glob)('./*/', {})
 		const requiredInformers = informerPool
 			.toArray()
 			.filter(informer => req.options.columns.some(prop => informer.props.includes(prop)) ||
-                req.options.filters.some(filter => informer.filters.some(f => f.name === filter.name)));
+				req.options.filters.some(filter => informer.filters.some(f => f.name === filter.name)));
 		const allInformers = informerPool.resolveDependencies(requiredInformers);
 
 		return Promise.all(directories.map(directory => informerPool.runDependencyTree(allInformers, (informer, info) => {

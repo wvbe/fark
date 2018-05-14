@@ -7,12 +7,12 @@ const informers = new InformerPool([
 		name: 'test-2',
 		dependencies: ['derp'],
 		retrieve: () => true,
-        props: [
-            { name: 'my-prop' }
-        ],
-        filters: [
-            { name: 'my-filter' }
-        ]
+		props: [
+			{ name: 'my-prop' }
+		],
+		filters: [
+			{ name: 'my-filter' }
+		]
 	}
 ]);
 
@@ -56,13 +56,13 @@ describe('informerManager', () => {
 			});
 	});
 
-    it('getProp', () => {
-        expect(informers.getProp('my-prop')).toBeTruthy();
-        expect(informers.getProp('derp')).toBeUndefined();
-    });
+	it('getProp', () => {
+		expect(informers.getProp('my-prop')).toBeTruthy();
+		expect(informers.getProp('derp')).toBeUndefined();
+	});
 
-    it('getFilter', () => {
-        expect(informers.getFilter('my-filter')).toBeTruthy();
-        expect(informers.getFilter('derp')).toBeUndefined();
-    });
+	it('getFilter', () => {
+		expect(informers.getFilter('my-filter')).toBeTruthy();
+		expect(informers.getFilter('derp')).toBeUndefined();
+	});
 });

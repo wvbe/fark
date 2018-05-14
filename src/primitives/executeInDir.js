@@ -42,4 +42,4 @@ module.exports = (cwd, argv) => {
 			resolve(processMessages);
 		});
 	});
-}
+};

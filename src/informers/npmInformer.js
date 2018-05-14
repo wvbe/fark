@@ -17,6 +17,13 @@ module.exports = {
 			description: 'The ' + prop + ' in package.json',
 			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson[prop] || null
 		})),
+		{
+			name: 'npm-keywords',
+			description: 'The keywords for this package',
+			callback: ({ isNpm, npmPackageJson }) => isNpm && Array.isArray(npmPackageJson.keywords) ?
+				npmPackageJson.keywords.join(', ') :
+				null
+		},
 		// @TODO: Let props in some way easily be converted to filters
 		{
 			name: 'is-npm-private',
@@ -59,6 +66,13 @@ module.exports = {
 			name: 'is-npm-private',
 			describe: 'The package is marked as private, not to be published',
 			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson.private
+		},
+		{
+			name: 'has-npm-keyword',
+			describe: 'The package has been labelled with keyword $1',
+			callback: ({ isNpm, npmPackageJson }, keyword) => isNpm &&
+				Array.isArray(npmPackageJson.keywords) &&
+				npmPackageJson.keywords.includes(keyword)
 		}
 	]
 };
