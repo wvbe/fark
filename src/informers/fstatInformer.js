@@ -5,7 +5,9 @@ module.exports = {
 	name: 'stat',
 
 	// String[]
-	dependencies: [],
+	dependencies: [
+		'system'
+	],
 
 	// Should return Object or Promise.<Object>
 	retrieve: (data, location) => new Promise((res, rej) => fs.lstat(location, (e, stats) => {
@@ -56,6 +58,11 @@ module.exports = {
 			callback: ({ fstat }) => {
 				return fstat.isSymbolicLink;
 			}
+		},
+		{
+			name: 'has-file',
+			description: 'Assert wether file $1 exists',
+			callback: ({ fstat, path: codePath }, filePath) => fs.existsSync(path.join(codePath, filePath))
 		}
 	]
 };
