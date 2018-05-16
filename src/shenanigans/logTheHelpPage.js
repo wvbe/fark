@@ -5,7 +5,7 @@ const informerPool = require('../informerPool');
 const NO_DESCRIPTION = '';
 
 const TABLE_DEFAULT_OPTIONS = {
-	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1
+	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last
 };
 const TABLE_MD_OPTIONS = {
 	drawHorizontalLine: (index, last) => index === 1,

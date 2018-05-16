@@ -83,3 +83,4 @@ npm install fark -g
 | name-starts-with | Only repositories whose directory starts with $1                                                 |
 | path-contains    | Only repositories whose full path contains $1                                                    |
 | status           | filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted) |
+
