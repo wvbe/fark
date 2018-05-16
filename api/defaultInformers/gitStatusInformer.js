@@ -1,4 +1,4 @@
-const spawnProcess = require('../primitives/executeInDir');
+const spawnProcess = require('../../src/primitives/executeInDir');
 
 function getWordsOrQuotedPhrases (myString) {
 	//The parenthesis in the regex creates a captured group within the quotes

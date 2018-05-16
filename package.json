@@ -2,6 +2,7 @@
   "name": "fark",
   "version": "1.0.2",
   "description": "A tool to work with the mess of git repositories that is your projects folder.",
+  "main": "./api/index.js",
   "scripts": {
     "update-readme": "node ./bin/fark -h md > README.tmp && rm README.md && mv README.tmp README.md",
     "prepublish": "npm run update-readme"
@@ -14,8 +15,8 @@
     "url": "git+ssh://git@github.com/wvbe/fark.git"
   },
   "keywords": [
-    "fark",
-    "knoftobor",
+    "git",
+    "list",
     "cli",
     "repository",
     "management"
