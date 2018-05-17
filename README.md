@@ -47,24 +47,19 @@ npm install fark -g
 
 ## Columns
 
-| name            | description                                                                                           |
-|-----------------|-------------------------------------------------------------------------------------------------------|
-| accessed        | The last time this file was accessed                                                                  |
-| changed         | The last time the file status was changed                                                             |
-| is-git          | This is a git versioned repository                                                                    |
-| is-link         | Symbolic link, or no                                                                                  |
-| is-npm          | This is an npm package                                                                                |
-| is-npm-private  | Is this a private package                                                                             |
-| modified        | The last time this file was modified                                                                  |
-| name            | The directory name                                                                                    |
-| npm-description | The description in package.json                                                                       |
-| npm-homepage    | The homepage in package.json                                                                          |
-| npm-keywords    | The keywords for this package                                                                         |
-| npm-license     | The license in package.json                                                                           |
-| npm-name        | The name in package.json                                                                              |
-| npm-version     | The version in package.json                                                                           |
-| path            | The full path to repo                                                                                 |
-| status          | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
+| name           | description                                                                                           |
+|----------------|-------------------------------------------------------------------------------------------------------|
+| accessed       | The last time this file was accessed                                                                  |
+| changed        | The last time the file status was changed                                                             |
+| is-git         | This is a git versioned repository                                                                    |
+| is-link        | Symbolic link, or no                                                                                  |
+| is-npm         | This is an npm package                                                                                |
+| is-npm-private | Is this a private package                                                                             |
+| modified       | The last time this file was modified                                                                  |
+| name           | The directory name                                                                                    |
+| npm-prop       | Property $1 of package.json                                                                           |
+| path           | The full path to repo                                                                                 |
+| status         | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
 
 ## Filters
 

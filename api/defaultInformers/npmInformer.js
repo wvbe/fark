@@ -4,25 +4,13 @@ const fs = require('fs');
 module.exports = {
 	name: 'npm',
 
-	// String[]
-	dependencies: [
-	//	'system'
-	],
+	dependencies: [],
 
-	// Describes the information that is retrieved by this informer
 	props: [
-		// @TODO: Let props take arguments similar to filters
-		...['name', 'description', 'version', 'license', 'homepage'].map(prop => ({
-			name: 'npm-' + prop,
-			description: 'The ' + prop + ' in package.json',
-			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson[prop] || null
-		})),
 		{
-			name: 'npm-keywords',
-			description: 'The keywords for this package',
-			callback: ({ isNpm, npmPackageJson }) => isNpm && Array.isArray(npmPackageJson.keywords) ?
-				npmPackageJson.keywords.join(', ') :
-				null
+			name: 'npm-prop',
+			description: 'Property $1 of package.json',
+			callback: ({ isNpm, npmPackageJson }, propName) => !isNpm || !propName ? null : npmPackageJson[propName] || null
 		},
 		// @TODO: Let props in some way easily be converted to filters
 		{
@@ -38,7 +26,6 @@ module.exports = {
 		}
 	],
 
-	// Should return Object or Promise.<Object>
 	retrieve: (info, location) => {
 		try {
 			const manifest = JSON.parse(fs.readFileSync(path.join(location, 'package.json'), 'utf8'));
@@ -55,7 +42,6 @@ module.exports = {
 		}
 	},
 
-	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
 	filters: [
 		{
 			name: 'is-npm',
