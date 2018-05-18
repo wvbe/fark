@@ -72,6 +72,7 @@ npm install fark -g
 | has-npm-keyword  |                                                                                                  |
 | has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                   |
 | is-git           | Only repositories versioned in git                                                               |
+| is-git-ahead     | The repository has a commit that has not been pushed to remote.                                  |
 | is-link          | Entry is a symbolic link                                                                         |
 | is-npm           |                                                                                                  |
 | is-npm-private   |                                                                                                  |

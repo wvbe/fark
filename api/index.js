@@ -21,5 +21,6 @@ module.exports.defaultInformers = [
     require('./defaultInformers/fstatInformer'),
     require('./defaultInformers/systemInformer'),
     require('./defaultInformers/npmInformer'),
-    require('./defaultInformers/gitStatusInformer')
+    require('./defaultInformers/gitStatusInformer'),
+    require('./defaultInformers/gitRemoteInformer')
 ];
