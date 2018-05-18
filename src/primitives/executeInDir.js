@@ -1,6 +1,6 @@
 'use strict';
 
-const spawn = require('cross-spawn-async');
+const spawn = require('cross-spawn');
 
 module.exports = (cwd, argv) => {
 	return new Promise((resolve, reject) => {

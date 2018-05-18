@@ -29,7 +29,7 @@
   "homepage": "https://github.com/wvbe/fark#readme",
   "dependencies": {
     "ask-nicely": "^3.0.1",
-    "cross-spawn-async": "^2.2.5",
+    "cross-spawn": "^6.0.5",
     "glob": "^7.1.2",
     "table": "^4.0.3"
   }
