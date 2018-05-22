@@ -24,6 +24,7 @@ module.exports = {
 	props: [
 		{
 			name: 'status',
+			type: 'string',
 			description: 'Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions.',
 			callback: ({isGit, gitChanges }) => !isGit ?
 				null :
@@ -33,7 +34,7 @@ module.exports = {
 					.sort()
 					.filter((a,i,aa) => aa.indexOf(a) === i)
 					.join('')
-					.replace('?', 'U') || '-')
+					.replace('?', 'U') || null)
 		}
 	],
 

@@ -16,7 +16,7 @@ module.exports = {
 			res({
 				fstat: {
 					...stats,
-					isSymbolicLink: stats.isSymbolicLink()
+					isSymbolicLink: !!stats.isSymbolicLink()
 				}
 			});
 	})),
@@ -25,29 +25,28 @@ module.exports = {
 	props: [
 		{
 			name: 'is-link',
+			type: 'boolean',
 			description: 'Symbolic link, or no',
-			callback: ({ fstat }) => fstat.isSymbolicLink ? 'yes' : 'no'
+			callback: ({ fstat }) => fstat.isSymbolicLink
 		},
 		{
 			name: 'changed',
+			type: 'date',
 			description: 'The last time the file status was changed',
-			callback: ({ fstat }) => new Date(fstat.ctime).toDateString()
+			callback: ({ fstat }) => new Date(fstat.ctime)
 		},
 		{
 			name: 'modified',
+			type: 'date',
 			description: 'The last time this file was modified',
-			callback: ({ fstat }) => new Date(fstat.mtime).toDateString()
+			callback: ({ fstat }) => new Date(fstat.mtime)
 		},
 		{
 			name: 'accessed',
+			type: 'date',
 			description: 'The last time this file was accessed',
-			callback: ({ fstat }) => new Date(fstat.atime).toDateString()
-		},
-		// {
-		// 	name: 'is-git',
-		// 	description: 'This is a git versioned repository',
-		// 	callback: ({ isGit }) => isGit ? 'yes' : 'no'
-		// }
+			callback: ({ fstat }) => new Date(fstat.atime)
+		}
 	],
 
 	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2

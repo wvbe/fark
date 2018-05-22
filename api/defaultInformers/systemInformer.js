@@ -11,18 +11,21 @@ module.exports = {
 	props: [
 		{
 			name: 'path',
+			type: 'string',
 			description: 'The full path to repo',
-			callback: ({ path }) => path
+			callback: ({ path }) => path || null
 		},
 		{
 			name: 'name',
+			type: 'string',
 			description: 'The directory name',
-			callback: ({ name }) => name
+			callback: ({ name }) => name || null
 		},
 		{
 			name: 'is-git',
+			type: 'boolean',
 			description: 'This is a git versioned repository',
-			callback: ({ isGit }) => isGit ? 'yes' : 'no'
+			callback: ({ isGit }) => !!isGit
 		}
 	],
 

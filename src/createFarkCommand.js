@@ -24,6 +24,21 @@ function consoleLogTable(columns, data) {
 	console.groupEnd();
 }
 
+const DATA_TYPES = {
+	string: {
+		format: str => str || null,
+		compare: (a, b) => typeof a === 'string' ? a.localeCompare(b) : 1
+	},
+	boolean: {
+		format: bool => bool ? 'yes' : 'no',
+		compare: (a, b) => a === b ? 0 : (a ? -1 : 1)
+	},
+	date: {
+		format: date => date ? date.toDateString() : null,
+		compare: (a, b) => a ? a.getTime() - b.getTime() : 1
+	}
+};
+
 module.exports = (informers = []) => {
 	const informerPool = new InformerPool(informers);
 
@@ -111,6 +126,8 @@ module.exports = (informers = []) => {
 		)))
 
 		.then(results => {
+			const dataTypes = req.options.columns.map(prop => DATA_TYPES[prop.type || 'string']);
+
 			// Prepare some info for sorting results
 			const sortIndex = req.options.sort.prop ?
 				Math.max(req.options.columns.findIndex(p => p.name === req.options.sort.prop.name), 0) :
@@ -118,10 +135,13 @@ module.exports = (informers = []) => {
 
 			const data = results
 			    // Map to a 2d array
-				.map(result => req.options.columns.map(prop => prop.callback(result, ...prop.arguments)))
-				.sort((a, b) => (req.options.sort.reverse ? b : a)[sortIndex] ?
-					(req.options.sort.reverse ? b : a)[sortIndex].localeCompare((req.options.sort.reverse ? a : b)[sortIndex]) :
-					1);
+				.map(row => req.options.columns.map(prop => prop.callback(row, ...prop.arguments)))
+				// Sort by their raw values
+				.sort((a, b) => req.options.sort.reverse ?
+					dataTypes[sortIndex].compare(b[sortIndex], a[sortIndex]) :
+					dataTypes[sortIndex].compare(a[sortIndex], b[sortIndex]))
+				// Format values according to their data type
+				.map(row => row.map((cell, i) => dataTypes[i].format(cell)));
 
 			consoleLogTable(req.options.columns.map(prop => prop.name), data);
 
