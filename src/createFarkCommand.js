@@ -13,7 +13,6 @@ function consoleLogTable(columns, data) {
 	data.splice(0, 0, columns);
 	data.push(columns);
 
-	console.group();
 	console.log(table(data, {
 		drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1,
 		columns: columns.map(() => ({
@@ -21,7 +20,6 @@ function consoleLogTable(columns, data) {
 			wrapWord: true
 		}))
 	}));
-	console.groupEnd();
 }
 
 const DATA_TYPES = {
@@ -157,12 +155,12 @@ module.exports = (informers = []) => {
 					req.options.columns.length,
 				time: (Date.now() - timeStart) + 'ms'
 			};
-			console.log('  Directories:  ' + stats.directories);
-			console.log('  Filters:      ' + stats.filterNames);
-			console.log('  Props:        ' + stats.propNames);
-			console.log('  Time:         ' + stats.time);
-			console.log();
 
+			console.log('Directories:  ' + stats.directories);
+			console.log('Filters:      ' + stats.filterNames);
+			console.log('Props:        ' + stats.propNames);
+			console.log('Time:         ' + stats.time);
+			console.log();
 			return results;
 		})
 
@@ -171,14 +169,15 @@ module.exports = (informers = []) => {
 			if (!req.options.run.length) {
 				return;
 			}
-
-			console.log('');
+			console.log('Executing "' + req.options.run.join(' ') + '"');
 			return results.reduce((deferred, result) => deferred
 				.then(() => executeInDir(result.path, req.options.run))
 				.then(messages => {
+					console.group();
 					console.log(result.path);
 					console.group();
 					messages.forEach(message => console[message.type === 'stdout' ? 'error' : 'log'](message.data));
+					console.groupEnd();
 					console.groupEnd();
 				}), Promise.resolve())
 		}));
