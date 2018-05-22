@@ -1,35 +1,60 @@
-> A tool that you run from your command line to find certain properties about folders in your working dir, and execute other shell commands in that set.
+# fark
 
-```
-# for example:
-# - for every npm package in my projects directory
-# - show the name and git status
-/home/wvbe/projects> fark --filters is-npm --columns name status is-npm
+**A (command line) tool to work with the mess of git repositories that is your projects folder.**
 
-  ╔════════════════════════════════════════════╤════════╤════════╗
-  ║ name                                       │ status │ is-npm ║
-  ╟────────────────────────────────────────────┼────────┼────────╢
-  ║ 0x.ee                                      │ -      │ yes    ║
-  ║ ask-nicely                                 │ -      │ yes    ║
-  ║ fark                                       │ ADM    │ yes    ║
-  ║ gatsby                                     │ -      │ yes    ║
-  ║ george                                     │ A      │ yes    ║
-  ║ get-rekt                                   │ -      │ yes    ║
-  ║ gh-pages-bin                               │ -      │ yes    ║
-  ║ hot-reload-all-the-things                  │ -      │ yes    ║
-  ║ wvbe.github.io                             │ U      │ yes    ║
-  ║ wyb.be                                     │ -      │ yes    ║
-  ║ xml-renderer                               │ -      │ yes    ║
-  ╟────────────────────────────────────────────┼────────┼────────╢
-  ║ name                                       │ status │ is-npm ║
-  ╚════════════════════════════════════════════╧════════╧════════╝
-```
-
-The columns and filters are designed to be easily pluggable, and use a dependency system in order to retrieve the
-required bits of information in the right time and with the lowest effort.
+You would `fark` by typing in your terminal (any of the following):
 
 ```sh
-# recommended installation method:
+# Lists all your projects
+/home/wvbe/projects> fark
+
+# Lists all projects that have uncommitted changes
+/home/wvbe/projects> fark -f status:dirty
+
+# Pull-rebase all projects that have a clean git state
+/home/wvbe/projects> fark -f status:clean -$ git pull -r
+
+# Create an npm package out of every project that isn't already
+/home/wvbe/projects> fark -f ~has-file:package.json -$ npm init --yes
+```
+
+You wield your power with precision using zero, one or many `--filters`, `--columns` and the `--run` option and some
+other stuff. For the comfort of your awesome fingertips, each of those also has an abbreviated form (`-f`, `-c`, etc.)
+
+- Filters narrow down the scope of projects that are logged back to you, or used for `--run`.
+- Columns simply log more stuff in an invention called "table".
+- Run a command to gain additional skill points in crafting unicorn blockchain hacks. Use responsibly.
+
+Output of `fark` could be something like:
+
+```sh
+/home/wvbe/projects> fark --filters is-npm --columns name npm-prop:version is-git status is-git-ahead
+╔══════════════╤═════════════╤════════╤════════╤══════════════╗
+║ name         │ npm-prop    │ is-git │ status │ is-git-ahead ║
+╟──────────────┼─────────────┼────────┼────────┼──────────────╢
+║ ask-nicely   │ 3.0.1       │ yes    │        │ no           ║
+║ fark         │ 1.0.2       │ yes    │ M      │ no           ║
+║ luggage      │ 1.0.0       │ yes    │        │ no           ║
+║ oxee         │ 4.0.0-alpha │ yes    │ UDM    │ no           ║
+║ poseidon     │ 0.1.0       │ yes    │        │ no           ║
+║ react-world  │ 0.1.0       │ yes    │ UDM    │ no           ║
+║ wyb.be       │ 0.1.0       │ yes    │ UDM    │ no           ║
+║ xml-renderer │ 1.2.0       │ yes    │ UADM   │ no           ║
+╟──────────────┼─────────────┼────────┼────────┼──────────────╢
+║ name         │ npm-prop    │ is-git │ status │ is-git-ahead ║
+╚══════════════╧═════════════╧════════╧════════╧══════════════╝
+
+Directories:  8
+Filters:      is-npm
+Props:        name, npm-prop, is-git, status, is-git-ahead
+Time:         217ms
+
+# If you use --run, the execution results for each project listed above are shown here
+```
+
+## Install
+
+```sh
 npm install fark -g
 ```
 
@@ -52,6 +77,7 @@ npm install fark -g
 | accessed       | The last time this file was accessed                                                                  |
 | changed        | The last time the file status was changed                                                             |
 | is-git         | This is a git versioned repository                                                                    |
+| is-git-ahead   | The repository has a commit that has not been pushed to remote.                                       |
 | is-link        | Symbolic link, or no                                                                                  |
 | is-npm         | This is an npm package                                                                                |
 | is-npm-private | Is this a private package                                                                             |

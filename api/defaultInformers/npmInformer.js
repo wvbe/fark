@@ -11,7 +11,7 @@ module.exports = {
 			name: 'npm-prop',
 			type: 'string',
 			description: 'Property $1 of package.json',
-			callback: ({ isNpm, npmPackageJson }, propName) => !isNpm || (propName && npmPackageJson[propName]) || null
+			callback: ({ isNpm, npmPackageJson }, propName) => (isNpm && propName && npmPackageJson[propName]) || null
 		},
 		// @TODO: Let props in some way easily be converted to filters
 		{

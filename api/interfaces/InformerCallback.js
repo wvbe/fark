@@ -13,6 +13,12 @@ class InformerCallback {
          * @type {String}
          */
         this.description = null;
+
+		/**
+         * Only for InformerCallback instances used as columns/for --columns
+		 * @type {'string'|'boolean'|'date'}
+		 */
+		this.type = null;
     }
 
     /**

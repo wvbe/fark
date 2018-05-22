@@ -7,7 +7,16 @@ module.exports = {
 	dependencies: ['system'],
 
 	// Describes the information that is retrieved by this informer
-	props: [],
+	props: [
+		{
+			name: 'is-git-ahead',
+			type: 'boolean',
+			description: 'The repository has a commit that has not been pushed to remote.',
+			callback: ({ hasUnpushedChanges }) => {
+				return !!hasUnpushedChanges;
+			}
+		}
+	],
 
 	// Should return Object or Promise.<Object>
 	retrieve: ({ isGit, path }) => isGit ?
