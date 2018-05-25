@@ -30,7 +30,7 @@
   "dependencies": {
     "ask-nicely": "^3.0.1",
     "cross-spawn": "^6.0.5",
-    "fast-glob": "^2.2.2",
+    "multi-glob": "^1.0.1",
     "table": "^4.0.3"
   }
 }
