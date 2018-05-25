@@ -1,6 +1,6 @@
 const timeStart = Date.now();
 
-const glob = require('glob');
+const glob = require('fast-glob');
 const util = require('util');
 const { table } = require('table');
 const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
@@ -57,6 +57,12 @@ module.exports = (informers = []) => {
 	/*
 		Normal use
 	*/
+	app.addOption(new MultiOption('glob')
+		.setShort('g')
+		.setDescription('Globbing pattern(s) for finding your projects. Defaults to "*".')
+		.setDefault(['*/'], true)
+	);
+
 	app.addOption(new MultiOption('filters')
 		.setShort('f')
 		.setDescription('Show only results that match all given filters. Use "~" to invert the filter response, and ":" for additional filter arguments.')
@@ -105,7 +111,10 @@ module.exports = (informers = []) => {
 		.setDescription('Run this command in every result directory')
 		.isInfinite(true));
 
-	app.setController(req => util.promisify(glob)('./*/', {})
+	app.setController(req => glob(req.options.glob, {
+			onlyFiles: false,
+			onlyDirectories: true
+		})
 		.then(directories => {
 			const requiredInformers = informerPool
 				.toArray()

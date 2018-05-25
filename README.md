@@ -66,6 +66,7 @@ npm install fark -g
 |-------|-----------|---------------------------------------------------------------------------------------------------------------------------------|----------|
 | -c    | --columns | Additional properties to show for each directory.                                                                               | no       |
 | -f    | --filters | Show only results that match all given filters. Use "~" to invert the filter response, and ":" for additional filter arguments. | no       |
+| -g    | --glob    | Globbing pattern(s) for finding your projects. Defaults to "*".                                                                 | no       |
 | -h    | --help    | Shows you this help page                                                                                                        | no       |
 | -$    | --run     | Run this command in every result directory                                                                                      | no       |
 | -s    | --sort    | Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.                          | no       |
