@@ -77,6 +77,7 @@ npm install fark -g
 |----------------|-------------------------------------------------------------------------------------------------------|
 | accessed       | The last time this file was accessed                                                                  |
 | changed        | The last time the file status was changed                                                             |
+| git-branch     | The branch name that is currently checked out                                                         |
 | is-git         | This is a git versioned repository                                                                    |
 | is-git-ahead   | The repository has a commit that has not been pushed to remote.                                       |
 | is-link        | Symbolic link, or no                                                                                  |
