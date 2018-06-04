@@ -5,6 +5,7 @@ const { table } = require('table');
 const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
 const InformerPool = require('./informers/InformerPool');
 const executeInDir = require('./primitives/executeInDir');
+const getResults = require('./primitives/getResults');
 const logTheHelpPage = require('./shenanigans/logTheHelpPage');
 
 function consoleLogTable(columns, data) {
@@ -21,20 +22,6 @@ function consoleLogTable(columns, data) {
 	}));
 }
 
-const DATA_TYPES = {
-	string: {
-		format: str => str || null,
-		compare: (a, b) => typeof a === 'string' ? a.localeCompare(b) : 1
-	},
-	boolean: {
-		format: bool => bool ? 'yes' : 'no',
-		compare: (a, b) => a === b ? 0 : (a ? -1 : 1)
-	},
-	date: {
-		format: date => date ? date.toDateString() : null,
-		compare: (a, b) => a ? a.getTime() - b.getTime() : 1
-	}
-};
 
 module.exports = (informers = []) => {
 	const informerPool = new InformerPool(informers);
@@ -111,46 +98,18 @@ module.exports = (informers = []) => {
 		.setDescription('Run this command in every result directory')
 		.isInfinite(true));
 
-	app.setController(req => new Promise((res, rej) => glob(req.options.glob, (err, data) => err ? rej(err) : res(data)))
-		.then(directories => {
-			const requiredInformers = informerPool
-				.toArray()
-				.filter(informer => req.options.columns.some(prop => informer.props.some(p => p.name === prop.name)) ||
-					req.options.filters.some(filter => informer.filters.some(f => f.name === filter.name)));
-			const allInformers = informerPool.resolveDependencies(requiredInformers);
-
-			return Promise.all(directories.map(directory => informerPool.runDependencyTree(allInformers, (informer, info) => {
-				return informer.retrieve(info, directory);
-			})));
-		})
-
-		// Filter irrelevant results based on the --filter option
-		.then(results => results.filter(result => req.options.filters.every(
-			filter => filter.isNegation === !filter.callback(result, ...filter.arguments)
-		)))
-
-		.then(results => {
-			const dataTypes = req.options.columns.map(prop => DATA_TYPES[prop.type || 'string']);
-
-			// Prepare some info for sorting results
-			const sortIndex = req.options.sort.prop ?
-				Math.max(req.options.columns.findIndex(p => p.name === req.options.sort.prop.name), 0) :
-				0;
-
-			const data = results
-			    // Map to a 2d array
-				.map(row => req.options.columns.map(prop => prop.callback(row, ...prop.arguments)))
-				// Sort by their raw values
-				.sort((a, b) => req.options.sort.reverse ?
-					dataTypes[sortIndex].compare(b[sortIndex], a[sortIndex]) :
-					dataTypes[sortIndex].compare(a[sortIndex], b[sortIndex]))
-				// Format values according to their data type
-				.map(row => row.map((cell, i) => dataTypes[i].format(cell)));
-
+	app.setController(req => getResults(
+		informerPool,
+		req.options.glob,
+		req.options.columns,
+		req.options.sort.prop,
+		req.options.sort.reverse,
+		req.options.filters
+	).then(data => {
 			consoleLogTable(req.options.columns.map(prop => prop.name), data);
 
 			const stats = {
-				directories: results.length,
+				directories: data.length,
 				filterNames: req.options.filters.length ?
 					req.options.filters
 						.map(filter => (filter.isNegation ? '~' : '') + [filter.name, ...filter.arguments].join(':'))
@@ -167,7 +126,7 @@ module.exports = (informers = []) => {
 			console.log('Props:        ' + stats.propNames);
 			console.log('Time:         ' + stats.time);
 			console.log();
-			return results;
+			return data;
 		})
 
 		// If the --run option was set, run that in a shell for each result

@@ -71,8 +71,7 @@ module.exports = function (command, informerPool, fromMarkdown) {
 		]));
 
 	consoleLogTable(fromMarkdown, 'Columns', ['name', 'description'], informerPool
-		.toArray()
-		.reduce((propNames, informer) => propNames.concat(informer.props), [])
+		.getProps()
 		.sort((a, b) => a.name.localeCompare(b.name))
 		.map(prop => [
 			prop.name,
@@ -81,8 +80,7 @@ module.exports = function (command, informerPool, fromMarkdown) {
 
 	//filter.description.match(/.{1,2}/g).join('#')
 	consoleLogTable(fromMarkdown, 'Filters', ['name', 'description'], informerPool
-		.toArray()
-		.reduce((propNames, informer) => propNames.concat(informer.filters), [])
+		.getFilters()
 		.sort((a, b) => a.name.localeCompare(b.name))
 		.map(filter => [
 			filter.name,

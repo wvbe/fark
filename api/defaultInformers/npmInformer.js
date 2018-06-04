@@ -6,29 +6,6 @@ module.exports = {
 
 	dependencies: [],
 
-	props: [
-		{
-			name: 'npm-prop',
-			type: 'string',
-			description: 'Property $1 of package.json',
-			callback: ({ isNpm, npmPackageJson }, propName) => (isNpm && propName && npmPackageJson[propName]) || null
-		},
-		// @TODO: Let props in some way easily be converted to filters
-		{
-			name: 'is-npm-private',
-			type: 'boolean',
-			description: 'Is this a private package',
-			// This prop deliberately does not check if package.json is actually valid for npm
-			callback: ({ npmPackageJson }) => !!npmPackageJson.isPrivate
-		},
-		{
-			name: 'is-npm',
-			type: 'boolean',
-			description: 'This is an npm package',
-			callback: ({ isNpm }) => isNpm
-		}
-	],
-
 	retrieve: (info, location) => {
 		try {
 			const manifest = JSON.parse(fs.readFileSync(path.join(location, 'package.json'), 'utf8'));
@@ -45,19 +22,33 @@ module.exports = {
 		}
 	},
 
-	filters: [
+	props: [
 		{
-			name: 'is-npm',
-			describe: 'There is a package.json that makes it an npm package',
-			callback: ({ isNpm }) => !!isNpm
+			name: 'npm-prop',
+			type: 'string',
+			description: 'Property $1 of package.json',
+			callback: ({ isNpm, npmPackageJson }, propName) => (isNpm && propName && npmPackageJson[propName]) || null
 		},
+		// @TODO: Let props in some way easily be converted to filters
 		{
 			name: 'is-npm-private',
-			describe: 'The package is marked as private, not to be published',
-			callback: ({ isNpm, npmPackageJson }) => isNpm && npmPackageJson.private
+			type: 'boolean',
+			isFilterable: true,
+			description: 'Is this a private package',
+			// This prop deliberately does not check if package.json is actually valid for npm
+			callback: ({ npmPackageJson }) => !!npmPackageJson.isPrivate
+		},
+		{
+			name: 'is-npm',
+			type: 'boolean',
+			isFilterable: true,
+			description: 'This is an npm package',
+			callback: ({ isNpm }) => isNpm
 		},
 		{
 			name: 'has-npm-keyword',
+			type: 'boolean',
+			isFilterable: true,
 			describe: 'The package has been labelled with keyword $1',
 			callback: ({ isNpm, npmPackageJson }, keyword) => isNpm &&
 				Array.isArray(npmPackageJson.keywords) &&

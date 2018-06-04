@@ -4,10 +4,14 @@ const fs = require('fs');
 module.exports = {
 	name: 'system',
 
-	// String[]
 	dependencies: [],
 
-	// Describes the information that is retrieved by this informer
+	retrieve: (_info, location) => ({
+		path: path.resolve(process.cwd(), location),
+		name: path.basename(location),
+		isGit: fs.existsSync(path.resolve(location, '.git'))
+	}),
+
 	props: [
 		{
 			name: 'path',
@@ -24,32 +28,21 @@ module.exports = {
 		{
 			name: 'is-git',
 			type: 'boolean',
+			isFilterable: true,
 			description: 'This is a git versioned repository',
 			callback: ({ isGit }) => !!isGit
-		}
-	],
-
-	// Should return Object or Promise.<Object>
-	retrieve: (_info, location) => ({
-		path: path.resolve(process.cwd(), location),
-		name: path.basename(location),
-		isGit: fs.existsSync(path.resolve(location, '.git'))
-	}),
-
-	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
-	filters: [
-		{
-			name: 'is-git',
-			description: 'Only repositories versioned in git',
-			callback: ({ isGit }) => isGit
 		},
 		{
 			name: 'path-contains',
+			type: 'boolean',
+			isFilterable: true,
 			description: 'Only repositories whose full path contains $1',
 			callback: ({ path }, query) => path.includes(query)
 		},
 		{
 			name: 'name-starts-with',
+			type: 'boolean',
+			isFilterable: true,
 			description: 'Only repositories whose directory starts with $1',
 			callback: ({ name }, query) => name.indexOf(query) === 0
 		}

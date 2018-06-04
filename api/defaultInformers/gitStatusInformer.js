@@ -17,11 +17,39 @@ function getWordsOrQuotedPhrases (myString) {
 module.exports = {
 	name: 'git-status',
 
-	// String[]
 	dependencies: ['system'],
 
-	// Describes the information that is retrieved by this informer
+	retrieve: ({ isGit, path }) => isGit ?
+		spawnProcess(path, ['git', 'status', '--porcelain'])
+			.then((messages) => ({
+				isGitClean: !!messages.length,
+				gitChanges: messages
+					.reduce((lines, message) => lines + message.data, '')
+					.split('\n')
+					.filter(line => !!line)
+					.map(line => {
+						const [type, file] = getWordsOrQuotedPhrases(line);
+						return { type, file };
+					})
+			})) :
+		{ isGitClean: false, gitChanges: [] },
+
 	props: [
+		...([
+			{ flag: '?', name: 'unstaged' },
+			{ flag: 'A', name: 'addition' },
+			{ flag: 'D', name: 'deletion' },
+			{ flag: 'M', name: 'modification' }
+		].map(chagneType => ({
+			name: 'has-' + chagneType.name,
+			type: 'boolean',
+			isFilterable: true,
+			description: 'Wether the repository has any, or a file $1 marked as ' + chagneType.name,
+			callback: ({ isGit, gitChanges }, fileName) => fileName ?
+				gitChanges.some(change => change.type.includes(chagneType.flag) && change.file === fileName) :
+				gitChanges.some(change => change.type.includes(chagneType.flag))
+		}))),
+
 		{
 			name: 'status',
 			type: 'string',
@@ -38,23 +66,6 @@ module.exports = {
 		}
 	],
 
-	// Should return Object or Promise.<Object>
-	retrieve: ({ isGit, path }) => isGit ?
-		spawnProcess(path, ['git', 'status', '--porcelain'])
-			.then((messages) => ({
-				isGitClean: !!messages.length,
-				gitChanges: messages
-					.reduce((lines, message) => lines + message.data, '')
-					.split('\n')
-					.filter(line => !!line)
-					.map(line => {
-						const [type, file] = getWordsOrQuotedPhrases(line);
-						return { type, file };
-					})
-			})) :
-		{ isGitClean: false, gitChanges: [] },
-
-	// A list of filters that can be applied on prop values using $ fark --filters filter-name:arg1:arg2
 	filters: [
 		{
 			name: 'status',
@@ -88,18 +99,6 @@ module.exports = {
 						.some(gitChange => changeType === gitChange.type.toLowerCase())
 					);
 			}
-		},
-		...([
-			{ flag: '?', name: 'unstaged' },
-			{ flag: 'A', name: 'addition' },
-			{ flag: 'D', name: 'deletion' },
-			{ flag: 'M', name: 'modification' }
-		].map(chagneType => ({
-			name: 'has-' + chagneType.name,
-			description: 'Wether the repository has any, or a file $1 marked as ' + chagneType.name,
-			callback: ({ isGit, gitChanges }, fileName) => fileName ?
-				gitChanges.some(change => change.type.includes(chagneType.flag) && change.file === fileName) :
-				gitChanges.some(change => change.type.includes(chagneType.flag))
-		})))
+		}
 	]
 };

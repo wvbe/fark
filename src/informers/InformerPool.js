@@ -1,5 +1,3 @@
-
-
 class InformerPool {
 	constructor (initial) {
 		this.informers = {};
@@ -13,25 +11,37 @@ class InformerPool {
 		this.informers[importedObject.name] = importedObject;
 	}
 
+	toArray () {
+		return Object.keys(this.informers).map(name => this.informers[name]);
+	}
+
 	getInformer (name) {
 		return this.informers[name]
 	}
 
+	getProps () {
+		return this.toArray()
+			.reduce((props, informer) => {
+				return props.concat(informer.props || []);
+			}, []);
+	}
+
 	getProp (name) {
-		return Object.keys(this.informers)
-			.reduce((props, informerName) => props.concat(this.informers[informerName].props || []), [])
-			.find(prop => prop.name === name);
+		return this.getProps().find(prop => prop.name === name);
+	}
+
+	getFilters () {
+		return this.toArray()
+			.reduce((props, informer) => {
+				return props.concat(informer.filters || [])
+					.concat(informer.props.filter(prop => prop.isFilterable));
+			}, []);
 	}
 
 	getFilter (name) {
-		return Object.keys(this.informers)
-			.reduce((props, informerName) => props.concat(this.informers[informerName].filters || []), [])
-			.find(filter => filter.name === name);
+		return this.getFilters().find(filter => filter.name === name);
 	}
 
-	toArray () {
-		return Object.keys(this.informers).map(name => this.informers[name]);
-	}
 	resolveDependencies (myWishList) {
 		const wishList = myWishList.slice();
 

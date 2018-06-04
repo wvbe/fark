@@ -19,6 +19,13 @@ class InformerCallback {
 		 * @type {'string'|'boolean'|'date'}
 		 */
 		this.type = null;
+
+		/**
+		 * Only for InformerCallback instances used as columns/for --columns of type "boolean"
+		 * Indicates that this boolean prop can also be used as a filter
+		 * @type {null}
+		 */
+		this.isFilterable = null;
     }
 
     /**
@@ -28,7 +35,7 @@ class InformerCallback {
      * @return {String|Boolean|null}
      */
     callback (info, ...args) {
-
+		throw new Error('Not implemented.');
     }
 }
 
