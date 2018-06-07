@@ -53,6 +53,15 @@ module.exports = {
 			callback: ({ isNpm, npmPackageJson }, keyword) => isNpm &&
 				Array.isArray(npmPackageJson.keywords) &&
 				npmPackageJson.keywords.includes(keyword)
+		},
+		{
+			name: 'has-npm-script',
+			type: 'boolean',
+			isFilterable: true,
+			describe: 'The package has an npm script called $1',
+			callback: ({ isNpm, npmPackageJson }, name) => isNpm &&
+				npmPackageJson.scripts &&
+				npmPackageJson.scripts[name]
 		}
 	]
 };

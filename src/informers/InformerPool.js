@@ -79,7 +79,8 @@ class InformerPool {
 		const optionProviders = this.getInformers()
 			.filter(informer => (
 				(informer.props || []).some(p => propNames.includes(p.name)) ||
-				(informer.filters || []).some(p => filterNames.includes(p.name))
+				(informer.filters || []).some(p => filterNames.includes(p.name)) ||
+				(informer.props || []).filter(p => p.isFilterable).some(p => filterNames.includes(p.name))
 			));
 
 		return this.getDependenciesForInformers(optionProviders);

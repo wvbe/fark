@@ -10,7 +10,7 @@ module.exports = {
 
 	retrieve: (data, location) => new Promise((res, rej) => fs.lstat(location, (e, stats) => {
 		return e ?
-			!console.log(e) && rej(e) :
+			rej(e) :
 			res({
 				fstat: {
 					...stats,
