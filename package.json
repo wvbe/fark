@@ -1,6 +1,6 @@
 {
   "name": "fark",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A tool to work with the mess of git repositories that is your projects folder.",
   "main": "./api/index.js",
   "scripts": {

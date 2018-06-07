@@ -73,21 +73,29 @@ npm install fark -g
 
 ## Columns
 
-| name           | description                                                                                           |
-|----------------|-------------------------------------------------------------------------------------------------------|
-| accessed       | The last time this file was accessed                                                                  |
-| changed        | The last time the file status was changed                                                             |
-| git-branch     | The branch name that is currently checked out                                                         |
-| is-git         | This is a git versioned repository                                                                    |
-| is-git-ahead   | The repository has a commit that has not been pushed to remote.                                       |
-| is-link        | Symbolic link, or no                                                                                  |
-| is-npm         | This is an npm package                                                                                |
-| is-npm-private | Is this a private package                                                                             |
-| modified       | The last time this file was modified                                                                  |
-| name           | The directory name                                                                                    |
-| npm-prop       | Property $1 of package.json                                                                           |
-| path           | The full path to repo                                                                                 |
-| status         | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
+| name             | description                                                                                           |
+|------------------|-------------------------------------------------------------------------------------------------------|
+| accessed         | The last time this file was accessed                                                                  |
+| changed          | The last time the file status was changed                                                             |
+| git-branch       | The branch name that is currently checked out                                                         |
+| has-addition     | Wether the repository has any, or a file $1 marked as addition                                        |
+| has-deletion     | Wether the repository has any, or a file $1 marked as deletion                                        |
+| has-file         | Assert wether file $1 exists                                                                          |
+| has-modification | Wether the repository has any, or a file $1 marked as modification                                    |
+| has-npm-keyword  |                                                                                                       |
+| has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                        |
+| is-git           | This is a git versioned repository                                                                    |
+| is-git-ahead     | The repository has a commit that has not been pushed to remote.                                       |
+| is-link          | Symbolic link, or no                                                                                  |
+| is-npm           | This is an npm package                                                                                |
+| is-npm-private   | Is this a private package                                                                             |
+| modified         | The last time this file was modified                                                                  |
+| name             | The directory name                                                                                    |
+| name-starts-with | Only repositories whose directory starts with $1                                                      |
+| npm-prop         | Property $1 of package.json                                                                           |
+| path             | The full path to repo                                                                                 |
+| path-contains    | Only repositories whose full path contains $1                                                         |
+| status           | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
 
 ## Filters
 
@@ -99,11 +107,11 @@ npm install fark -g
 | has-modification | Wether the repository has any, or a file $1 marked as modification                               |
 | has-npm-keyword  |                                                                                                  |
 | has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                   |
-| is-git           | Only repositories versioned in git                                                               |
+| is-git           | This is a git versioned repository                                                               |
 | is-git-ahead     | The repository has a commit that has not been pushed to remote.                                  |
-| is-link          | Entry is a symbolic link                                                                         |
-| is-npm           |                                                                                                  |
-| is-npm-private   |                                                                                                  |
+| is-link          | Symbolic link, or no                                                                             |
+| is-npm           | This is an npm package                                                                           |
+| is-npm-private   | Is this a private package                                                                        |
 | name-starts-with | Only repositories whose directory starts with $1                                                 |
 | path-contains    | Only repositories whose full path contains $1                                                    |
 | status           | filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted) |
