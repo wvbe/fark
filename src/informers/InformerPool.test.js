@@ -1,5 +1,5 @@
 const InformerPool = require('./InformerPool');
-const informers = new InformerPool([
+const informerPool = new InformerPool([
 	{ name: 'path',    dependencies: [],       retrieve: () => ({ a: 'bzt' }) },
 	{ name: 'test-1',  dependencies: ['path'], retrieve: (props) => ({ b: 'arf', received: props }) },
 	{ name: 'test-1b', dependencies: ['path'], retrieve: () => ({ c: true }) },
@@ -16,32 +16,32 @@ const informers = new InformerPool([
 	}
 ]);
 
-describe('informerManager', () => {
+describe('InformerPool', () => {
 	it('getInformer', () => {
 		// Something that exists
-		expect(informers.getInformer('path')).toBeTruthy();
+		expect(informerPool.getInformer('path')).toBeTruthy();
 
 		// Something that does not exist
-		expect(informers.getInformer('xxx')).toBeUndefined();
+		expect(informerPool.getInformer('xxx')).toBeUndefined();
 	});
 
-	it('resolveDependencies', () => {
+	it('getDependenciesForInformers', () => {
 		// Load something without a dependency
-		expect(informers.resolveDependencies([informers.getInformer('path')])).toHaveLength(1);
+		expect(informerPool.getDependenciesForInformers([informerPool.getInformer('path')])).toHaveLength(1);
 
 		// Load something with a dependency
-		expect(informers.resolveDependencies([informers.getInformer('test-1')])).toHaveLength(2);
+		expect(informerPool.getDependenciesForInformers([informerPool.getInformer('test-1')])).toHaveLength(2);
 
 		// Attempt load something with a broken dependency
-		expect(() => informers.resolveDependencies([informers.getInformer('test-2')])).toThrow();
+		expect(() => informerPool.getDependenciesForInformers([informerPool.getInformer('test-2')])).toThrow();
 	});
 
 	it('runDependencyTree', () => {
 		expect.assertions(3);
 
 		// Raise whatever is necessary to get the "test-1" informer to work
-		return informers.runDependencyTree(
-				informers.resolveDependencies([informers.getInformer('test-1')]),
+		return informerPool.runDependencyTree(
+				informerPool.getDependenciesForInformers([informerPool.getInformer('test-1')]),
 				(informer, props) => informer.retrieve(props)
 			)
 			.then(results => {
@@ -57,12 +57,17 @@ describe('informerManager', () => {
 	});
 
 	it('getProp', () => {
-		expect(informers.getProp('my-prop')).toBeTruthy();
-		expect(informers.getProp('derp')).toBeUndefined();
+		expect(informerPool.getProp('my-prop')).toBeTruthy();
+		expect(informerPool.getProp('derp')).toBeUndefined();
 	});
 
 	it('getFilter', () => {
-		expect(informers.getFilter('my-filter')).toBeTruthy();
-		expect(informers.getFilter('derp')).toBeUndefined();
+		expect(informerPool.getFilter('my-filter')).toBeTruthy();
+		expect(informerPool.getFilter('derp')).toBeUndefined();
+	});
+
+	it('getFilters', () => {
+		expect(informerPool.getFilters().map(f => f.name))
+			.toEqual(expect.arrayContaining(['my-filter']));
 	});
 });

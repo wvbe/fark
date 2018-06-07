@@ -1,5 +1,58 @@
+// Asynchronously resolves as many informers in parallel as the dependency tree allows
+function asyncMapInformersInDependencyOrder (informers, callback) {
+	// The accumulated results stored by informer name
+	const results = {};
+
+	// The informers that are currently doing an async retrieve()
+	const pending = [];
+
+	// Informers that are not yet pending or resolved
+	const queuedDependencies = informers.slice();
+
+	return new Promise(function iterate (resolve) {
+		const readyDeps = queuedDependencies
+		// Find informers that have zero (unmet) dependencies so we can resolve them
+			.filter(informer => informer.dependencies.filter(dep => !results[dep]).length === 0);
+
+		// If there are no new tasks and nothing is pending, resolve with all informer data
+		if (!readyDeps.length && !pending.length) {
+			const mergedResults = Object.keys(results)
+				.reduce((merged, depName) => Object.assign(merged, results[depName]), {});
+			return resolve(mergedResults);
+		}
+
+		readyDeps.forEach(informer => {
+			// Remove from queue
+			queuedDependencies.splice(queuedDependencies.indexOf(informer), 1);
+
+			// Register as pending
+			pending.push(informer);
+
+			// Start async
+			Promise.resolve(callback(
+				informer,
+				informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
+			))
+				.then(props => {
+					// Unregister as pending
+					pending.splice(pending.indexOf(informer), 1);
+
+					// Write results
+					results[informer.name] = props;
+
+					// Repeat
+					iterate(resolve);
+				})
+				.catch(err => {
+					console.error(err.stack);
+				});
+		});
+	});
+}
+
 class InformerPool {
 	constructor (initial) {
+		// Informers by name
 		this.informers = {};
 
 		if (Array.isArray(initial)) {
@@ -11,16 +64,38 @@ class InformerPool {
 		this.informers[importedObject.name] = importedObject;
 	}
 
-	toArray () {
-		return Object.keys(this.informers).map(name => this.informers[name]);
-	}
-
 	getInformer (name) {
 		return this.informers[name]
 	}
 
+	// A flat list of all informers
+	getInformers () {
+		return Object.keys(this.informers).map(name => this.informers[name]);
+	}
+
+	// The subset of informers that provide any number of the named props and filters, and the total of dependency
+	// informers.
+	getInformersForOptions (propNames, filterNames) {
+		const optionProviders = this.getInformers()
+			.filter(informer => (
+				(informer.props || []).some(p => propNames.includes(p.name)) ||
+				(informer.filters || []).some(p => filterNames.includes(p.name))
+			));
+
+		return this.getDependenciesForInformers(optionProviders);
+	}
+
+	retrieveForOptions (directories, propNames, filterNames) {
+		const informers = this.getInformersForOptions(propNames, filterNames);
+
+		return Promise.all(directories.map(directory => asyncMapInformersInDependencyOrder(informers, (informer, info) => {
+			return informer.retrieve(info, directory);
+		})));
+	}
+
+	// All available props
 	getProps () {
-		return this.toArray()
+		return this.getInformers()
 			.reduce((props, informer) => {
 				return props.concat(informer.props || []);
 			}, []);
@@ -30,11 +105,12 @@ class InformerPool {
 		return this.getProps().find(prop => prop.name === name);
 	}
 
+	// All available filters
 	getFilters () {
-		return this.toArray()
+		return this.getInformers()
 			.reduce((props, informer) => {
 				return props.concat(informer.filters || [])
-					.concat(informer.props.filter(prop => prop.isFilterable));
+					.concat((informer.props || []).filter(prop => prop.isFilterable));
 			}, []);
 	}
 
@@ -42,11 +118,10 @@ class InformerPool {
 		return this.getFilters().find(filter => filter.name === name);
 	}
 
-	resolveDependencies (myWishList) {
-		const wishList = myWishList.slice();
+	getDependenciesForInformers (informers) {
+		const wishList = informers.slice();
 
 		let newWishListItems = wishList.length;
-		let i = 0;
 		while (newWishListItems) {
 			const discoveredDepencies = wishList
 				// Gather all listed dependencies
@@ -66,50 +141,6 @@ class InformerPool {
 		}
 
 		return wishList;
-	}
-
-	runDependencyTree (resolvedDependencies, callback) {
-		const results = {};
-		const pending = [];
-		const queuedDependencies = resolvedDependencies.slice();
-
-		return new Promise(function iterate (resolve) {
-			const readyDeps = queuedDependencies
-				// Find informers that have zero (unmet) dependencies
-				.filter(informer => informer.dependencies.filter(dep => !results[dep]).length === 0);
-
-			// If there are no new tasks and nothing is pending, resolve
-			if (!readyDeps.length && !pending.length) {
-				return resolve(Object.keys(results).reduce((accum, depName) => Object.assign(accum, results[depName]), {}));
-			}
-
-			readyDeps.forEach(informer => {
-				// Remove from queue
-				queuedDependencies.splice(queuedDependencies.indexOf(informer), 1);
-
-				// Register as pending
-				pending.push(informer);
-
-				// Start async
-				Promise.resolve(callback(
-						informer,
-						informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
-					))
-					.then(props => {
-						// Unregister as pending
-						pending.splice(pending.indexOf(informer), 1);
-
-						// Write results
-						results[informer.name] = props;
-
-						// Repeat
-						iterate(resolve);
-					})
-					.catch(err => {
-						console.error(err.stack);
-					});
-			});
-		})
 	}
 }
 

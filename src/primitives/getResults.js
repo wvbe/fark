@@ -24,17 +24,12 @@ module.exports = function getResults (
 	filters
 ) {
 	return new Promise((res, rej) => glob(globbingPattern, (err, data) => err ? rej(err) : res(data)))
-		.then(directories => {
-			const requiredInformers = informerPool
-				.toArray()
-				.filter(informer => columns.some(prop => informer.props.some(p => p.name === prop.name)) ||
-					filters.some(filter => informer.filters.some(f => f.name === filter.name)));
-			const allInformers = informerPool.resolveDependencies(requiredInformers);
-
-			return Promise.all(directories.map(directory => informerPool.runDependencyTree(allInformers, (informer, info) => {
-				return informer.retrieve(info, directory);
-			})));
-		})
+		// Get expensive info as cheaply as possible from the informer pool
+		.then(directories => informerPool.retrieveForOptions(
+			directories,
+			columns.map(c => c.name),
+			filters.map(f => f.name)
+		))
 
 		// Filter irrelevant results based on the --filter option
 		.then(informerDatas => informerDatas.filter(informerData => filters.every(
@@ -50,13 +45,13 @@ module.exports = function getResults (
 				0;
 
 			return informerDatas
-			// Map to a 2d array
+				// Map to a 2d array for rows and cells
 				.map(row => columns.map(prop => prop.callback(row, ...prop.arguments)))
-				// Sort by their raw values
+				// Sort by (the inverted of) whatever the data type comparator wants
 				.sort((a, b) => sortInverse ?
 					dataTypes[sortIndex].compare(b[sortIndex], a[sortIndex]) :
 					dataTypes[sortIndex].compare(a[sortIndex], b[sortIndex]))
-				// Format values according to their data type
+				// Format according to data type
 				.map(row => row.map((cell, i) => dataTypes[i].format(cell)));
 		});
 };
