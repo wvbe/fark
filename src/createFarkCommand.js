@@ -53,11 +53,17 @@ module.exports = (informers = []) => {
 	app.addOption(new MultiOption('filters')
 		.setShort('f')
 		.setDescription('Show only results that match all given filters. Use "~" to invert the filter response, and ":" for additional filter arguments.')
-		.setResolver(filters => filters.map(filter => {
-			const isNegation = filter.charAt(0) === '~';
-			const [name, ...arguments] = filter.substr(isNegation ? 1 : 0).split(':');
+		.setResolver(filters => filters.map(filterSpec => {
+			const isNegation = filterSpec.charAt(0) === '~';
+			const [name, ...arguments] = filterSpec.substr(isNegation ? 1 : 0).split(':');
+			const filter = informerPool.getFilter(name);
+
+			if (!filter) {
+				throw new Error('Filter "' + name + '" doesn\'t exist!');
+			}
+
 			return {
-				...informerPool.getFilter(name),
+				...filter,
 				arguments,
 				isNegation
 			};
@@ -85,10 +91,14 @@ module.exports = (informers = []) => {
 		.setShort('c')
 		.setDescription('Additional properties to show for each directory.')
 		.setDefault(['name', 'status'], true)
-		.setResolver(props => props.map(prop => {
-			const [name, ...arguments] = prop.split(':');
+		.setResolver(props => props.map(propSpec => {
+			const [name, ...arguments] = propSpec.split(':');
+			const prop = informerPool.getProp(name);
+			if (!prop) {
+				throw new Error('Column "' + name + '" doesn\'t exist!');
+			}
 			return {
-				...informerPool.getProp(name),
+				...prop,
 				arguments
 			};
 		}))
