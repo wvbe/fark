@@ -9,8 +9,8 @@ module.exports = require('../src/createFarkCommand');
  * @type {{Informer: Informer, InformerCallback: InformerCallback}}
  */
 module.exports.interfaces = {
-    Informer: require('./interfaces/Informer'),
-    InformerCallback: require('./interfaces/InformerCallback')
+	Informer: require('./interfaces/Informer'),
+	InformerCallback: require('./interfaces/InformerCallback')
 };
 
 /**
@@ -18,10 +18,21 @@ module.exports.interfaces = {
  * @type {*[]}
  */
 module.exports.defaultInformers = [
-    require('./defaultInformers/fstatInformer'),
-    require('./defaultInformers/systemInformer'),
-    require('./defaultInformers/npmInformer'),
-    require('./defaultInformers/gitStatusInformer'),
+	require('./defaultInformers/fstatInformer'),
+	require('./defaultInformers/systemInformer'),
+	require('./defaultInformers/npmInformer'),
+	require('./defaultInformers/gitStatusInformer'),
 	require('./defaultInformers/gitRemoteInformer'),
 	require('./defaultInformers/gitBranchInformer')
 ];
+
+
+/**
+ * You don't have to use this, but here's a list of informers that I thought were a good idea.
+ * @type {*[]}
+ */
+module.exports.propTypes = {
+	date: require('./propTypes/date'),
+	string: require('./propTypes/string'),
+	boolean: require('./propTypes/boolean')
+};

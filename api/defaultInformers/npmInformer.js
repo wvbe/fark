@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 
+const propTypeString = require('../propTypes/string');
+const propTypeBoolean = require('../propTypes/boolean');
+
 module.exports = {
 	name: 'npm',
 
@@ -25,14 +28,13 @@ module.exports = {
 	props: [
 		{
 			name: 'npm-prop',
-			type: 'string',
+			type: propTypeString,
 			description: 'Property $1 of package.json',
 			callback: ({ isNpm, npmPackageJson }, propName) => (isNpm && propName && npmPackageJson[propName]) || null
 		},
-		// @TODO: Let props in some way easily be converted to filters
 		{
 			name: 'is-npm-private',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Is this a private package',
 			// This prop deliberately does not check if package.json is actually valid for npm
@@ -40,25 +42,25 @@ module.exports = {
 		},
 		{
 			name: 'is-npm',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'This is an npm package',
 			callback: ({ isNpm }) => isNpm
 		},
 		{
 			name: 'has-npm-keyword',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
-			describe: 'The package has been labelled with keyword $1',
+			description: 'The package has been labelled with keyword $1',
 			callback: ({ isNpm, npmPackageJson }, keyword) => isNpm &&
 				Array.isArray(npmPackageJson.keywords) &&
 				npmPackageJson.keywords.includes(keyword)
 		},
 		{
 			name: 'has-npm-script',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
-			describe: 'The package has an npm script called $1',
+			description: 'The package has an npm script called $1',
 			callback: ({ isNpm, npmPackageJson }, name) => isNpm &&
 				npmPackageJson.scripts &&
 				npmPackageJson.scripts[name]

@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 
+const propTypeBoolean = require('../propTypes/boolean');
+const propTypeDate = require('../propTypes/date');
+
 module.exports = {
 	name: 'stat',
 
@@ -22,32 +25,32 @@ module.exports = {
 	props: [
 		{
 			name: 'is-link',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Symbolic link, or no',
 			callback: ({ fstat }) => fstat.isSymbolicLink
 		},
 		{
 			name: 'changed',
-			type: 'date',
+			type: propTypeDate,
 			description: 'The last time the file status was changed',
 			callback: ({ fstat }) => new Date(fstat.ctime)
 		},
 		{
 			name: 'modified',
-			type: 'date',
+			type: propTypeDate,
 			description: 'The last time this file was modified',
 			callback: ({ fstat }) => new Date(fstat.mtime)
 		},
 		{
 			name: 'accessed',
-			type: 'date',
+			type: propTypeDate,
 			description: 'The last time this file was accessed',
 			callback: ({ fstat }) => new Date(fstat.atime)
 		},
 		{
 			name: 'has-file',
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Assert wether file $1 exists',
 			callback: ({ fstat, path: codePath }, filePath) => fs.existsSync(path.join(codePath, filePath))

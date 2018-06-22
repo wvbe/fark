@@ -1,5 +1,9 @@
 const spawnProcess = require('../../src/primitives/executeInDir');
 
+const propTypeString = require('../propTypes/string');
+const propTypeBoolean = require('../propTypes/boolean');
+const propTypeDate = require('../propTypes/date');
+
 function getWordsOrQuotedPhrases (myString) {
 	//The parenthesis in the regex creates a captured group within the quotes
 	const pattern = /[^\s"]+|"([^"]*)"/gi;
@@ -42,7 +46,7 @@ module.exports = {
 			{ flag: 'M', name: 'modification' }
 		].map(chagneType => ({
 			name: 'has-' + chagneType.name,
-			type: 'boolean',
+			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Wether the repository has any, or a file $1 marked as ' + chagneType.name,
 			callback: ({ isGit, gitChanges }, fileName) => fileName ?
@@ -52,7 +56,7 @@ module.exports = {
 
 		{
 			name: 'status',
-			type: 'string',
+			type: propTypeString,
 			description: 'Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions.',
 			callback: ({isGit, gitChanges }) => !isGit ?
 				null :

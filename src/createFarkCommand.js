@@ -116,7 +116,10 @@ module.exports = (informers = []) => {
 		req.options.sort.reverse,
 		req.options.filters
 	).then(data => {
-			consoleLogTable(req.options.columns.map(prop => prop.name), data);
+			consoleLogTable(
+				req.options.columns.map(prop => prop.name),
+				data.map(row => row.getFormattedData())
+			);
 
 			const stats = {
 				directories: data.length,
@@ -146,10 +149,10 @@ module.exports = (informers = []) => {
 			}
 			console.log('Executing "' + req.options.run.join(' ') + '"');
 			return results.reduce((deferred, result) => deferred
-				.then(() => executeInDir(result.path, req.options.run))
+				.then(() => executeInDir(result.location, req.options.run))
 				.then(messages => {
 					console.group();
-					console.log(result.path);
+					console.log(result.location);
 					console.group();
 					messages.forEach(message => console[message.type === 'stdout' ? 'error' : 'log'](message.data));
 					console.groupEnd();

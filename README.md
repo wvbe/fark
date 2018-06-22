@@ -82,7 +82,8 @@ npm install fark -g
 | has-deletion     | Wether the repository has any, or a file $1 marked as deletion                                        |
 | has-file         | Assert wether file $1 exists                                                                          |
 | has-modification | Wether the repository has any, or a file $1 marked as modification                                    |
-| has-npm-keyword  |                                                                                                       |
+| has-npm-keyword  | The package has been labelled with keyword $1                                                         |
+| has-npm-script   | The package has an npm script called $1                                                               |
 | has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                        |
 | is-git           | This is a git versioned repository                                                                    |
 | is-git-ahead     | The repository has a commit that has not been pushed to remote.                                       |
@@ -105,7 +106,8 @@ npm install fark -g
 | has-deletion     | Wether the repository has any, or a file $1 marked as deletion                                   |
 | has-file         | Assert wether file $1 exists                                                                     |
 | has-modification | Wether the repository has any, or a file $1 marked as modification                               |
-| has-npm-keyword  |                                                                                                  |
+| has-npm-keyword  | The package has been labelled with keyword $1                                                    |
+| has-npm-script   | The package has an npm script called $1                                                          |
 | has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                   |
 | is-git           | This is a git versioned repository                                                               |
 | is-git-ahead     | The repository has a commit that has not been pushed to remote.                                  |

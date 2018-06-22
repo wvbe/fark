@@ -1,4 +1,5 @@
 const spawnProcess = require('../../src/primitives/executeInDir');
+const propTypeString = require('../propTypes/string');
 
 module.exports = {
 	name: 'git-branch',
@@ -22,7 +23,7 @@ module.exports = {
 	props: [
 		{
 			name: 'git-branch',
-			type: 'string',
+			type: propTypeString,
 			description: 'The branch name that is currently checked out',
 			callback: ({ gitLocalBranches }) => {
 				const current = gitLocalBranches.find(info => info.checkedOut);

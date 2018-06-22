@@ -1,19 +1,41 @@
 const glob = require('multi-glob').glob;
 
-const DATA_TYPES = {
-	string: {
-		format: str => str || null,
-		compare: (a, b) => typeof a === 'string' ? a.localeCompare(b) : 1
-	},
-	boolean: {
-		format: bool => bool ? 'yes' : 'no',
-		compare: (a, b) => a === b ? 0 : (a ? -1 : 1)
-	},
-	date: {
-		format: date => date ? date.toDateString() : null,
-		compare: (a, b) => a ? a.getTime() - b.getTime() : 1
-	}
+const defaultPropType = {
+	format: str => str || null,
+	compare: (a, b) => typeof a === 'string' ? a.localeCompare(b) : 1
 };
+
+class Row {
+	constructor (location, columns, data) {
+		this.location = location;
+		this.columns = columns;
+		this.informerData = data;
+	}
+
+	getDataForColumn (column) {
+		const index = this.columns.findIndex(c => c.name === column.name);
+
+		return this.getCellData()[index];
+	}
+
+	getCellData () {
+		if (!Array.isArray(this.cellData)) {
+			this.cellData = this.columns.map(prop => prop.callback(this.informerData, ...prop.arguments));
+		}
+
+		return this.cellData;
+	}
+
+	getFormattedData () {
+		if (!Array.isArray(this.formattedData)) {
+			this.formattedData = this.columns.map((prop, i) => {
+				return (prop.type || defaultPropType).format(this.getCellData()[i]);
+			});
+		}
+
+		return this.formattedData;
+	}
+}
 
 module.exports = function getResults (
 	informerPool,
@@ -36,22 +58,11 @@ module.exports = function getResults (
 			filter => filter.isNegation === !filter.callback(informerData, ...filter.arguments)
 		)))
 
-		.then(informerDatas => {
-			const dataTypes = columns.map(prop => DATA_TYPES[prop.type || 'string']);
+		.then(informerDatas => informerDatas.map(data => new Row(data.path, columns, data)))
 
-			// Prepare some info for sorting results
-			const sortIndex = sortColumn ?
-				Math.max(columns.findIndex(p => p.name === sortColumn.name), 0) :
-				0;
-
-			return informerDatas
-				// Map to a 2d array for rows and cells
-				.map(row => columns.map(prop => prop.callback(row, ...prop.arguments)))
-				// Sort by (the inverted of) whatever the data type comparator wants
-				.sort((a, b) => sortInverse ?
-					dataTypes[sortIndex].compare(b[sortIndex], a[sortIndex]) :
-					dataTypes[sortIndex].compare(a[sortIndex], b[sortIndex]))
-				// Format according to data type
-				.map(row => row.map((cell, i) => dataTypes[i].format(cell)));
-		});
+		.then(rows => sortColumn ?
+			rows.sort((a, b) => (sortColumn.type || defaultPropType).compare(
+				a.getDataForColumn(sortColumn),
+				b.getDataForColumn(sortColumn)) * (sortInverse ? -1 : 1)) :
+			rows);
 };

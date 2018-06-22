@@ -1,5 +1,7 @@
 const spawnProcess = require('../../src/primitives/executeInDir');
 
+const propTypeBoolean = require('../propTypes/boolean');
+
 module.exports = {
 	name: 'git-remote-status',
 
@@ -16,7 +18,7 @@ module.exports = {
 		{
 			name: 'is-git-ahead',
 			isFilterable: true,
-			type: 'boolean',
+			type: propTypeBoolean,
 			description: 'The repository has a commit that has not been pushed to remote.',
 			callback: ({ hasUnpushedChanges }) => {
 				return !!hasUnpushedChanges;
