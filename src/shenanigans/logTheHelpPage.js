@@ -6,6 +6,7 @@ const NO_DESCRIPTION = '';
 const TABLE_DEFAULT_OPTIONS = {
 	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last
 };
+
 const TABLE_MD_OPTIONS = {
 	drawHorizontalLine: (index, last) => index === 1,
 	border: {
@@ -29,6 +30,7 @@ const TABLE_MD_OPTIONS = {
 		joinJoin:  `|`
 	}
 };
+
 function consoleLogTable (markdown, name, columns, data) {
 	if (markdown) {
 		console.log('## ' + name);
@@ -43,6 +45,7 @@ function consoleLogTable (markdown, name, columns, data) {
 		markdown ? TABLE_MD_OPTIONS : TABLE_DEFAULT_OPTIONS
 	));
 }
+
 function concatAllOfAncestors (command, propertyName) {
 	return (command.parent
 		? concatAllOfAncestors(command.parent, propertyName)

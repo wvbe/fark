@@ -4,7 +4,7 @@
   "description": "A tool to work with the mess of git repositories that is your projects folder.",
   "main": "./api/index.js",
   "scripts": {
-    "update-readme": "node ./bin/fark -h md > README.tmp && rm README.md && mv README.tmp README.md",
+    "update-readme": "node ./bin/fark-sparse -h md > README.tmp && rm README.md && mv README.tmp README.md",
     "prepublish": "npm run update-readme"
   },
   "bin": {
@@ -31,6 +31,7 @@
     "ask-nicely": "^3.0.1",
     "cross-spawn": "^6.0.5",
     "multi-glob": "^1.0.1",
+    "semver": "^5.5.0",
     "table": "^4.0.3"
   }
 }

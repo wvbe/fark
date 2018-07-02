@@ -1,14 +1,27 @@
 #!/usr/bin/env node
 
+const path = require('path');
+const os = require('os');
+const glob = require('multi-glob').glob;
 const fark = require('../api/index');
+const farkDir = path.join(os.homedir(), '.fark');
 
-fark(fark.defaultInformers)
-	.execute(process.argv.slice(2))
-	.then(() => {
-		process.exit(0);
-	})
-	.catch(error => {
-		// Errors that occur in informers are thrown all the way over here.
-		console.log(error);
-		process.exit(1);
-	});
+glob(['*Informer.js'], { cwd: farkDir }, (err, fileNames) => {
+	if (err) {
+		console.error(err);
+	}
+
+	fark([
+		...fark.defaultInformers,
+		...fileNames.map(fileName => require(path.join(farkDir, fileName)))
+	])
+		.execute(process.argv.slice(2))
+		.then(() => {
+			process.exit(0);
+		})
+		.catch(error => {
+			// Errors that occur in informers are thrown all the way over here.
+			console.log(error);
+			process.exit(1);
+		});
+});

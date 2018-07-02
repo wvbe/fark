@@ -34,5 +34,6 @@ module.exports.defaultInformers = [
 module.exports.propTypes = {
 	date: require('./propTypes/date'),
 	string: require('./propTypes/string'),
-	boolean: require('./propTypes/boolean')
+	boolean: require('./propTypes/boolean'),
+	semver: require('./propTypes/semver')
 };
