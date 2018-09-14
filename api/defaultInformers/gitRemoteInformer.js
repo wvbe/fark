@@ -8,9 +8,9 @@ module.exports = {
 	dependencies: ['system'],
 
 	retrieve: ({ isGit, path }) => isGit ?
-		spawnProcess(path, ['git', 'cherry', '-v'])
+		spawnProcess(path, ['git', 'rev-list', '--left-right', '--count', 'HEAD...origin/HEAD'])
 			.then((messages) => ({
-				hasUnpushedChanges: !!messages.length
+				hasUnpushedChanges: !messages[0].data.startsWith('0')
 			})) :
 		{ hasUnpushedChanges: false },
 
