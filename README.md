@@ -73,48 +73,54 @@ npm install fark -g
 
 ## Columns
 
-| name             | description                                                                                           |
-|------------------|-------------------------------------------------------------------------------------------------------|
-| accessed         | The last time this file was accessed                                                                  |
-| changed          | The last time the file status was changed                                                             |
-| git-branch       | The branch name that is currently checked out                                                         |
-| has-addition     | Wether the repository has any, or a file $1 marked as addition                                        |
-| has-deletion     | Wether the repository has any, or a file $1 marked as deletion                                        |
-| has-file         | Assert wether file $1 exists                                                                          |
-| has-modification | Wether the repository has any, or a file $1 marked as modification                                    |
-| has-npm-keyword  | The package has been labelled with keyword $1                                                         |
-| has-npm-script   | The package has an npm script called $1                                                               |
-| has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                        |
-| is-git           | This is a git versioned repository                                                                    |
-| is-git-ahead     | The repository has a commit that has not been pushed to remote.                                       |
-| is-link          | Symbolic link, or no                                                                                  |
-| is-npm           | This is an npm package                                                                                |
-| is-npm-private   | Is this a private package                                                                             |
-| modified         | The last time this file was modified                                                                  |
-| name             | The directory name                                                                                    |
-| name-starts-with | Only repositories whose directory starts with $1                                                      |
-| npm-prop         | Property $1 of package.json                                                                           |
-| path             | The full path to repo                                                                                 |
-| path-contains    | Only repositories whose full path contains $1                                                         |
-| status           | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
+| name              | description                                                                                           |
+|-------------------|-------------------------------------------------------------------------------------------------------|
+| accessed          | The last time this file was accessed                                                                  |
+| changed           | The last time the file status was changed                                                             |
+| git-branch        | The branch name that is currently checked out                                                         |
+| has-addition      | Wether the repository has any, or a file $1 marked as addition                                        |
+| has-branch        | Assert wether $1 is a branch on the local machine or any of the remotes                               |
+| has-deletion      | Wether the repository has any, or a file $1 marked as deletion                                        |
+| has-file          | Assert wether file $1 exists                                                                          |
+| has-local-branch  | Assert wether $1 is a branch on the local machine                                                     |
+| has-modification  | Wether the repository has any, or a file $1 marked as modification                                    |
+| has-npm-keyword   | The package has been labelled with keyword $1                                                         |
+| has-npm-script    | The package has an npm script called $1                                                               |
+| has-remote-branch | Assert wether $1 is a branch on any of the remotes, or on remote $2 if the second argument is used.   |
+| has-unstaged      | Wether the repository has any, or a file $1 marked as unstaged                                        |
+| is-git            | This is a git versioned repository                                                                    |
+| is-git-ahead      | The repository has a commit that has not been pushed to remote.                                       |
+| is-link           | Symbolic link, or no                                                                                  |
+| is-npm            | This is an npm package                                                                                |
+| is-npm-private    | Is this a private package                                                                             |
+| modified          | The last time this file was modified                                                                  |
+| name              | The directory name                                                                                    |
+| name-starts-with  | Only repositories whose directory starts with $1                                                      |
+| npm-prop          | Property $1 of package.json                                                                           |
+| path              | The full path to repo                                                                                 |
+| path-contains     | Only repositories whose full path contains $1                                                         |
+| status            | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
 
 ## Filters
 
-| name             | description                                                                                      |
-|------------------|--------------------------------------------------------------------------------------------------|
-| has-addition     | Wether the repository has any, or a file $1 marked as addition                                   |
-| has-deletion     | Wether the repository has any, or a file $1 marked as deletion                                   |
-| has-file         | Assert wether file $1 exists                                                                     |
-| has-modification | Wether the repository has any, or a file $1 marked as modification                               |
-| has-npm-keyword  | The package has been labelled with keyword $1                                                    |
-| has-npm-script   | The package has an npm script called $1                                                          |
-| has-unstaged     | Wether the repository has any, or a file $1 marked as unstaged                                   |
-| is-git           | This is a git versioned repository                                                               |
-| is-git-ahead     | The repository has a commit that has not been pushed to remote.                                  |
-| is-link          | Symbolic link, or no                                                                             |
-| is-npm           | This is an npm package                                                                           |
-| is-npm-private   | Is this a private package                                                                        |
-| name-starts-with | Only repositories whose directory starts with $1                                                 |
-| path-contains    | Only repositories whose full path contains $1                                                    |
-| status           | filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted) |
+| name              | description                                                                                         |
+|-------------------|-----------------------------------------------------------------------------------------------------|
+| has-addition      | Wether the repository has any, or a file $1 marked as addition                                      |
+| has-branch        | Assert wether $1 is a branch on the local machine or any of the remotes                             |
+| has-deletion      | Wether the repository has any, or a file $1 marked as deletion                                      |
+| has-file          | Assert wether file $1 exists                                                                        |
+| has-local-branch  | Assert wether $1 is a branch on the local machine                                                   |
+| has-modification  | Wether the repository has any, or a file $1 marked as modification                                  |
+| has-npm-keyword   | The package has been labelled with keyword $1                                                       |
+| has-npm-script    | The package has an npm script called $1                                                             |
+| has-remote-branch | Assert wether $1 is a branch on any of the remotes, or on remote $2 if the second argument is used. |
+| has-unstaged      | Wether the repository has any, or a file $1 marked as unstaged                                      |
+| is-git            | This is a git versioned repository                                                                  |
+| is-git-ahead      | The repository has a commit that has not been pushed to remote.                                     |
+| is-link           | Symbolic link, or no                                                                                |
+| is-npm            | This is an npm package                                                                              |
+| is-npm-private    | Is this a private package                                                                           |
+| name-starts-with  | Only repositories whose directory starts with $1                                                    |
+| path-contains     | Only repositories whose full path contains $1                                                       |
+| status            | filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted)    |
 
