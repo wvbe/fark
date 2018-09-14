@@ -63,9 +63,9 @@ module.exports = {
 			name: 'has-remote-branch',
 			type: propTypeBoolean,
 			isFilterable: true,
-			description: 'Assert wether $1 is a branch on any of the remotes',
-			callback: ({ gitBranches }, branchName) => gitBranches.find(info => (
-				!!info.remoteName &&
+			description: 'Assert wether $1 is a branch on any of the remotes, or on remote $2 if the second argument is used.',
+			callback: ({ gitBranches }, branchName, remoteName) => gitBranches.find(info => (
+				(remoteName ? info.remoteName === remoteName : !!info.remoteName) &&
 				info.branchName === branchName
 			))
 		},
