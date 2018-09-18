@@ -25,7 +25,7 @@ function createObjectForBranchOutputLine (line) {
 }
 
 module.exports = {
-	name: 'git-branch',
+	name: 'branch',
 
 	dependencies: ['system'],
 

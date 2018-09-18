@@ -90,6 +90,7 @@ npm install fark -g
 | has-unstaged      | Wether the repository has any, or a file $1 marked as unstaged                                        |
 | is-git            | This is a git versioned repository                                                                    |
 | is-git-ahead      | The repository has a commit that has not been pushed to remote.                                       |
+| is-git-behind     | The remote has a commit that has not been pulled.                                                     |
 | is-link           | Symbolic link, or no                                                                                  |
 | is-npm            | This is an npm package                                                                                |
 | is-npm-private    | Is this a private package                                                                             |
@@ -99,6 +100,7 @@ npm install fark -g
 | npm-prop          | Property $1 of package.json                                                                           |
 | path              | The full path to repo                                                                                 |
 | path-contains     | Only repositories whose full path contains $1                                                         |
+| remote-status     | The number of commits ahead and behind on the tracked remote branch                                   |
 | status            | Clean status, or any combination of (U) unstaged, (A) additions, (M) modifications and (D) deletions. |
 
 ## Filters
@@ -117,6 +119,7 @@ npm install fark -g
 | has-unstaged      | Wether the repository has any, or a file $1 marked as unstaged                                      |
 | is-git            | This is a git versioned repository                                                                  |
 | is-git-ahead      | The repository has a commit that has not been pushed to remote.                                     |
+| is-git-behind     | The remote has a commit that has not been pulled.                                                   |
 | is-link           | Symbolic link, or no                                                                                |
 | is-npm            | This is an npm package                                                                              |
 | is-npm-private    | Is this a private package                                                                           |
