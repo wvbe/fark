@@ -78,6 +78,9 @@ npm install fark -g
 | accessed          | The last time this file was accessed                                                                  |
 | changed           | The last time the file status was changed                                                             |
 | git-branch        | The branch name that is currently checked out                                                         |
+| git-remote-names  | The names of repository git remotes                                                                   |
+| git-remote-url    | The URL of a specific git remote                                                                      |
+| git-remote-urls   | The URLs of repository git remotes                                                                    |
 | has-addition      | Wether the repository has any, or a file $1 marked as addition                                        |
 | has-branch        | Assert wether $1 is a branch on the local machine or any of the remotes                               |
 | has-deletion      | Wether the repository has any, or a file $1 marked as deletion                                        |
