@@ -30,9 +30,9 @@ function asyncMapInformersInDependencyOrder (informers, callback) {
 
 			// Start async
 			Promise.resolve(callback(
-				informer,
-				informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
-			))
+					informer,
+					informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
+				))
 				.then(props => {
 					// Unregister as pending
 					pending.splice(pending.indexOf(informer), 1);
@@ -86,10 +86,11 @@ class InformerPool {
 		return this.getDependenciesForInformers(optionProviders);
 	}
 
-	retrieveForOptions (directories, propNames, filterNames) {
+	retrieveForOptions (directories, propNames, filterNames, forEachCallback) {
 		const informers = this.getInformersForOptions(propNames, filterNames);
 
 		return Promise.all(directories.map(directory => asyncMapInformersInDependencyOrder(informers, (informer, info) => {
+			forEachCallback(informers, directories, informer, directory);
 			return informer.retrieve(info, directory);
 		})));
 	}

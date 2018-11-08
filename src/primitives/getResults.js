@@ -1,4 +1,5 @@
 const glob = require('multi-glob').glob;
+const Gauge = require('gauge');
 
 const defaultPropType = {
 	format: str => str || null,
@@ -45,20 +46,34 @@ module.exports = function getResults (
 	sortInverse,
 	filters
 ) {
+	var gauge = new Gauge();
+	gauge.show('Finding projects');
+
+	let finished = 0;
 	return new Promise((res, rej) => glob(globbingPattern, (err, data) => err ? rej(err) : res(data)))
 		// Get expensive info as cheaply as possible from the informer pool
 		.then(directories => informerPool.retrieveForOptions(
 			directories,
 			columns.map(c => c.name),
-			filters.map(f => f.name)
+			filters.map(f => f.name),
+			(informers, directories) => {
+				const index = ++finished,
+					progress = index/(informers.length * directories.length);
+				gauge.show(`Retrieving information (${index}/${informers.length * directories.length})`, progress);
+				gauge.pulse();
+			}
 		))
 
 		// Filter irrelevant results based on the --filter option
-		.then(informerDatas => informerDatas.filter(informerData => filters.every(
-			filter => filter.isNegation === !filter.callback(informerData, ...filter.arguments)
-		)))
+		.then(informerDatas => {
+			gauge.hide();
 
-		.then(informerDatas => informerDatas.map(data => new Row(data.path, columns, data)))
+			return informerDatas
+				.filter(informerData => filters.every(
+					filter => filter.isNegation === !filter.callback(informerData, ...filter.arguments)
+				))
+				.map(data => new Row(data.path, columns, data));
+			})
 
 		.then(rows => sortColumn ?
 			rows.sort((a, b) => (sortColumn.type || defaultPropType).compare(

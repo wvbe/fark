@@ -30,6 +30,7 @@
   "dependencies": {
     "ask-nicely": "^3.0.1",
     "cross-spawn": "^6.0.5",
+    "gauge": "^2.7.4",
     "multi-glob": "^1.0.1",
     "semver": "^5.5.0",
     "table": "^4.0.3"
