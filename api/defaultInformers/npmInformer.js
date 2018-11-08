@@ -38,7 +38,7 @@ module.exports = {
 			isFilterable: true,
 			description: 'Is this a private package',
 			// This prop deliberately does not check if package.json is actually valid for npm
-			callback: ({ npmPackageJson }) => !!npmPackageJson.isPrivate
+			callback: ({ npmPackageJson }) => isNpm && npmPackageJson.isPrivate
 		},
 		{
 			name: 'is-npm',

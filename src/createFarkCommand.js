@@ -1,43 +1,34 @@
 const timeStart = Date.now();
 
 const glob = require('multi-glob').glob;
-const { table } = require('table');
 const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
 const InformerPool = require('./informers/InformerPool');
 const executeInDir = require('./primitives/executeInDir');
 const getResults = require('./primitives/getResults');
 const logTheHelpPage = require('./shenanigans/logTheHelpPage');
-
-function consoleLogTable(columns, data) {
-	// Add the column names to the top and bottom of the table
-	data.splice(0, 0, columns);
-	data.push(columns);
-
-	console.log(table(data, {
-		drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last || index === last - 1,
-		columns: columns.map(() => ({
-			alignment: 'left',
-			wrapWord: true
-		}))
-	}));
-}
-
+const logTable = require('./shenanigans/logTable');
 
 module.exports = (informers = []) => {
 	const informerPool = new InformerPool(informers);
 
 	const app = new Command();
 
-	app.addOption(new IsolatedOption('help')
-		.setShort('h')
-		.setDescription('Shows you this help page')
-	);
-	app.addPreController(req => {
-		if (!req.options.help) {
-			return;
-		}
+	app.addMiddleware = (optionName, short, description, preController) => {
+		app.addOption(new IsolatedOption(optionName)
+			.setShort(short)
+			.setDescription(description));
+		app.addPreController(req => req.options[optionName] ?
+			Promise.resolve(preController(req)).then(() => false) :
+			null);
+	};
+
+
+	app.addMiddleware('help', 'h', 'Shows you this help page', req => {
 		logTheHelpPage(req.command, informerPool, req.options.help === 'md');
-		return false;
+	});
+
+	app.addMiddleware('version', 'v', 'Gives the fark version', req => {
+		console.log(require('../package.json').version);
 	});
 
 	/*
@@ -47,12 +38,13 @@ module.exports = (informers = []) => {
 		.setShort('g')
 		.setDescription('Globbing pattern(s) for finding your projects. Defaults to "*".')
 		.setDefault(['*'], true)
-		.setResolver(patterns => patterns.map(pattern => pattern.charAt(pattern.length - 1) === '/' ? pattern : pattern + '/'))
-	);
+		.setResolver(patterns => patterns.map(pattern => pattern.charAt(pattern.length - 1) === '/' ?
+			pattern :
+			pattern + '/')));
 
 	app.addOption(new MultiOption('filters')
 		.setShort('f')
-		.setDescription('Show only results that match all given filters. Use "~" to invert the filter response, and ":" for additional filter arguments.')
+		.setDescription('Show only results that match all given Filters. Use "~" to invert the filter response, and ":" for additional filter arguments.')
 		.setResolver(filters => filters.map(filterSpec => {
 			const isNegation = filterSpec.charAt(0) === '~';
 			const [name, ...arguments] = filterSpec.substr(isNegation ? 1 : 0).split(':');
@@ -67,8 +59,7 @@ module.exports = (informers = []) => {
 				arguments,
 				isNegation
 			};
-		}))
-	);
+		})));
 
 	app.addOption(new Option('sort')
 		.setShort('s')
@@ -87,9 +78,13 @@ module.exports = (informers = []) => {
 			};
 		}));
 
+	app.addOption(new Option('nowrap')
+		.setShort('W')
+		.setDescription('Do not stretch or shrink the results table to terminal width'));
+
 	app.addOption(new MultiOption('columns')
 		.setShort('c')
-		.setDescription('Additional properties to show for each directory.')
+		.setDescription('Additional properties to show for each directory, see also the available Columns.')
 		.setDefault(['name', 'status'], true)
 		.setResolver(props => props.map(propSpec => {
 			const [name, ...arguments] = propSpec.split(':');
@@ -109,16 +104,17 @@ module.exports = (informers = []) => {
 		.isInfinite(true));
 
 	app.setController(req => getResults(
-		informerPool,
-		req.options.glob,
-		req.options.columns,
-		req.options.sort.prop,
-		req.options.sort.reverse,
-		req.options.filters
-	).then(data => {
-			consoleLogTable(
+			informerPool,
+			req.options.glob,
+			req.options.columns,
+			req.options.sort.prop,
+			req.options.sort.reverse,
+			req.options.filters)
+		.then(data => {
+			logTable(
 				req.options.columns.map(prop => prop.name),
-				data.map(row => row.getFormattedData())
+				data.map(row => row.getFormattedData()),
+				!!req.options.nowrap
 			);
 
 			const stats = {

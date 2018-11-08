@@ -12,7 +12,7 @@ module.exports = {
 		spawnProcess(path, ['git', 'remote', 'show'])
 			.then((messages) => {
 				// Get the list of remote names
-				const remoteNames = messages.reduce((list, message) => list.concat(message.data.trim().split(os.EOL)), []);
+				const remoteNames = messages.reduce((list, message) => list.concat(message.data.trim().split('\n')), []);
 
 				// Perform "git config --get remote.origin.url" for every remote name
 				return Promise.all(remoteNames.map(remoteName => spawnProcess(path, [

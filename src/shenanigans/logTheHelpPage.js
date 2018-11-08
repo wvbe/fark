@@ -2,7 +2,7 @@ const { table } = require('table');
 const fs = require('fs');
 const path = require('path');
 const NO_DESCRIPTION = '';
-
+const logTable = require('./logTable');
 const TABLE_DEFAULT_OPTIONS = {
 	drawHorizontalLine: (index, last) => index === 0 || index === 1 || index === last
 };
@@ -35,15 +35,14 @@ function consoleLogTable (markdown, name, columns, data) {
 	if (markdown) {
 		console.log('## ' + name);
 		console.log();
+		console.log(table(
+			[columns, ...data],
+			TABLE_MD_OPTIONS));
 	}
 	else {
 		console.log(name);
+		logTable(columns, data);
 	}
-
-	console.log(table(
-		[columns, ...data],
-		markdown ? TABLE_MD_OPTIONS : TABLE_DEFAULT_OPTIONS
-	));
 }
 
 function concatAllOfAncestors (command, propertyName) {
