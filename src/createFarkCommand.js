@@ -1,5 +1,5 @@
 const timeStart = Date.now();
-
+var stringSimilarity = require('string-similarity');
 const glob = require('multi-glob').glob;
 const { Command, Option, MultiOption, IsolatedOption } = require('ask-nicely');
 const InformerPool = require('./informers/InformerPool');
@@ -51,7 +51,15 @@ module.exports = (informers = []) => {
 			const filter = informerPool.getFilter(name);
 
 			if (!filter) {
-				throw new Error('Filter "' + name + '" doesn\'t exist!');
+				const possibleMatches = stringSimilarity
+					.findBestMatch(name, informerPool.getFilters()
+					.map(filter => filter.name))
+					.ratings
+					.filter(result => result.rating > 0)
+					.sort((a, b) => b.rating - a.rating);
+
+				throw new Error('Filter "' + name + '" doesn\'t exist!' + (possibleMatches.length ?
+					' Did you mean:\n' + possibleMatches.map(m => '  - ' + m.target).join('\n') : ''));
 			}
 
 			return {
@@ -89,9 +97,19 @@ module.exports = (informers = []) => {
 		.setResolver(props => props.map(propSpec => {
 			const [name, ...arguments] = propSpec.split(':');
 			const prop = informerPool.getProp(name);
+
 			if (!prop) {
-				throw new Error('Column "' + name + '" doesn\'t exist!');
+				const possibleMatches = stringSimilarity
+					.findBestMatch(name, informerPool.getProps()
+					.map(prop => prop.name))
+					.ratings
+					.filter(result => result.rating > 0)
+					.sort((a, b) => b.rating - a.rating);
+
+				throw new Error('Column "' + name + '" doesn\'t exist!' + (possibleMatches.length ?
+					' Did you mean:\n' + possibleMatches.map(m => '  - ' + m.target).join('\n') : ''));
 			}
+
 			return {
 				...prop,
 				arguments
@@ -150,7 +168,7 @@ module.exports = (informers = []) => {
 					console.group();
 					console.log(result.location);
 					console.group();
-					messages.forEach(message => console[message.type === 'stdout' ? 'error' : 'log'](message.data));
+					messages.forEach(message => console[message.type === 'stderr' ? 'error' : 'log'](message.data));
 					console.groupEnd();
 					console.groupEnd();
 				}), Promise.resolve())

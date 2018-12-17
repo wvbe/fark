@@ -57,9 +57,8 @@ module.exports = function getResults (
 			columns.map(c => c.name),
 			filters.map(f => f.name),
 			(informers, directories) => {
-				const index = ++finished,
-					progress = index/(informers.length * directories.length);
-				gauge.show(`Retrieving information (${index}/${informers.length * directories.length})`, progress);
+				const progress = ++finished/(informers.length * directories.length);
+				gauge.show(`Retrieving information (${finished}/${informers.length * directories.length})`, progress);
 				gauge.pulse();
 			}
 		))

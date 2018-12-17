@@ -20,8 +20,7 @@ glob(['*Informer.js'], { cwd: farkDir }, (err, fileNames) => {
 			process.exit(0);
 		})
 		.catch(error => {
-			// Errors that occur in informers are thrown all the way over here.
-			console.log(error);
+			console.error(error.message);
 			process.exit(1);
 		});
 });

@@ -36,8 +36,9 @@ module.exports = (cwd, argv) => {
 
 		spawnedProcess.on('close', () => {
 			// If cancelled, do not resolve() because  it was already rejected
-			if(cancelled)
+			if(cancelled) {
 				return;
+			}
 
 			resolve(processMessages);
 		});
