@@ -20,7 +20,9 @@ glob(['*Informer.js'], { cwd: farkDir }, (err, fileNames) => {
 			process.exit(0);
 		})
 		.catch(error => {
+			console.log();
 			console.error(error.message);
+			console.log();
 			process.exit(1);
 		});
 });

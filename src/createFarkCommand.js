@@ -13,6 +13,18 @@ module.exports = (informers = []) => {
 
 	const app = new Command();
 
+	function formatErrorMessageOfTypeNotFound (typeLabel, query, options) {
+		const possibleMatches = stringSimilarity
+			.findBestMatch(query, options)
+			.ratings
+			.filter(result => result.rating > 0)
+			.sort((a, b) => b.rating - a.rating);
+
+		return `${typeLabel} "${query}" does not exist.` + (possibleMatches.length ?
+			' Did you mean:\n\n' + possibleMatches.map(m => '  - ' + m.target).join('\n') :
+			'');
+	}
+
 	app.addMiddleware = (optionName, short, description, preController) => {
 		app.addOption(new IsolatedOption(optionName)
 			.setShort(short)
@@ -49,17 +61,8 @@ module.exports = (informers = []) => {
 			const isNegation = filterSpec.charAt(0) === '~';
 			const [name, ...arguments] = filterSpec.substr(isNegation ? 1 : 0).split(':');
 			const filter = informerPool.getFilter(name);
-
 			if (!filter) {
-				const possibleMatches = stringSimilarity
-					.findBestMatch(name, informerPool.getFilters()
-					.map(filter => filter.name))
-					.ratings
-					.filter(result => result.rating > 0)
-					.sort((a, b) => b.rating - a.rating);
-
-				throw new Error('Filter "' + name + '" doesn\'t exist!' + (possibleMatches.length ?
-					' Did you mean:\n' + possibleMatches.map(m => '  - ' + m.target).join('\n') : ''));
+				throw new Error(formatErrorMessageOfTypeNotFound('Filter', name, informerPool.getFilters().map(f => f.name)));
 			}
 
 			return {
@@ -79,9 +82,14 @@ module.exports = (informers = []) => {
 				};
 			}
 			const reverse = sort && sort.charAt(0) === '~';
+			const name = sort.substr(reverse ? 1 : 0);
+			const prop = informerPool.getProp(name);
+			if (!prop) {
+				throw new Error(formatErrorMessageOfTypeNotFound('Sorting column', name, informerPool.getProps().map(f => f.name)));
+			}
 
 			return {
-				prop: informerPool.getProp(sort.substr(reverse ? 1 : 0)),
+				prop,
 				reverse
 			};
 		}));
@@ -97,17 +105,8 @@ module.exports = (informers = []) => {
 		.setResolver(props => props.map(propSpec => {
 			const [name, ...arguments] = propSpec.split(':');
 			const prop = informerPool.getProp(name);
-
 			if (!prop) {
-				const possibleMatches = stringSimilarity
-					.findBestMatch(name, informerPool.getProps()
-					.map(prop => prop.name))
-					.ratings
-					.filter(result => result.rating > 0)
-					.sort((a, b) => b.rating - a.rating);
-
-				throw new Error('Column "' + name + '" doesn\'t exist!' + (possibleMatches.length ?
-					' Did you mean:\n' + possibleMatches.map(m => '  - ' + m.target).join('\n') : ''));
+				throw new Error(formatErrorMessageOfTypeNotFound('Column', name, informerPool.getProps().map(f => f.name)));
 			}
 
 			return {
