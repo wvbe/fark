@@ -1,39 +1,39 @@
 {
-  "name": "fark",
-  "version": "1.1.5",
-  "description": "A command line tool to work with the mess that is your projects folder.",
-  "main": "./api/index.js",
-  "scripts": {
-    "update-readme": "node ./bin/fark-sparse -h md > README.tmp && rm README.md && mv README.tmp README.md",
-    "prepublish": "npm run update-readme"
-  },
-  "bin": {
-    "fark": "./bin/fark"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/wvbe/fark.git"
-  },
-  "keywords": [
-    "git",
-    "list",
-    "cli",
-    "repository",
-    "management"
-  ],
-  "author": "wvbe",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wvbe/fark/issues"
-  },
-  "homepage": "https://github.com/wvbe/fark#readme",
-  "dependencies": {
-    "ask-nicely": "^3.0.1",
-    "cross-spawn": "^6.0.5",
-    "gauge": "^2.7.4",
-    "multi-glob": "^1.0.1",
-    "semver": "^5.5.0",
-    "string-similarity": "^3.0.0",
-    "table": "^4.0.3"
-  }
+	"name": "fark",
+	"version": "1.1.6",
+	"description": "A command line tool to work with the mess that is your projects folder.",
+	"main": "./api/index.js",
+	"scripts": {
+		"update-readme": "node ./bin/fark-sparse -h md > README.tmp && rm README.md && mv README.tmp README.md",
+		"prepublish": "npm run update-readme"
+	},
+	"bin": {
+		"fark": "./bin/fark"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/wvbe/fark.git"
+	},
+	"keywords": [
+		"git",
+		"list",
+		"cli",
+		"repository",
+		"management"
+	],
+	"author": "wvbe",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/wvbe/fark/issues"
+	},
+	"homepage": "https://github.com/wvbe/fark#readme",
+	"dependencies": {
+		"ask-nicely": "^3.0.1",
+		"cross-spawn": "^6.0.5",
+		"gauge": "^2.7.4",
+		"multi-glob": "^1.0.1",
+		"semver": "^5.5.0",
+		"string-similarity": "^3.0.0",
+		"table": "^4.0.3"
+	}
 }
