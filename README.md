@@ -74,16 +74,17 @@ the following:
 
 ## Options
 
-| short | long      | description                                                                                                                     | required |
-|-------|-----------|---------------------------------------------------------------------------------------------------------------------------------|----------|
-| -c    | --columns | Additional properties to show for each directory, see also the available Columns.                                               | no       |
-| -f    | --filters | Show only results that match all given Filters. Use "~" to invert the filter response, and ":" for additional filter arguments. | no       |
-| -g    | --glob    | Globbing pattern(s) for finding your projects. Defaults to "*".                                                                 | no       |
-| -h    | --help    | Shows you this help page                                                                                                        | no       |
-| -W    | --nowrap  | Do not stretch or shrink the results table to terminal width                                                                    | no       |
-| -$    | --run     | Run this command in every result directory                                                                                      | no       |
-| -s    | --sort    | Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.                          | no       |
-| -v    | --version | Gives the fark version                                                                                                          | no       |
+| short | long         | description                                                                                                                     | required |
+|-------|--------------|---------------------------------------------------------------------------------------------------------------------------------|----------|
+| -c    | --columns    | Additional properties to show for each directory, see also the available Columns.                                               | no       |
+| -C    | --concurrent | The amount of execution tasks to perform concurrently                                                                           | no       |
+| -f    | --filters    | Show only results that match all given Filters. Use "~" to invert the filter response, and ":" for additional filter arguments. | no       |
+| -g    | --glob       | Globbing pattern(s) for finding your projects. Defaults to "*".                                                                 | no       |
+| -h    | --help       | Shows you this help page                                                                                                        | no       |
+| -W    | --nowrap     | Do not stretch or shrink the results table to terminal width                                                                    | no       |
+| -$    | --run        | Run this command in every result directory                                                                                      | no       |
+| -s    | --sort       | Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.                          | no       |
+| -v    | --version    | Gives the fark version                                                                                                          | no       |
 
 ## Columns
 
@@ -113,6 +114,7 @@ the following:
 | is-npm-private    | Is this a private package                                                                             |
 | modified          | The last time this file was modified                                                                  |
 | name              | The directory name                                                                                    |
+| name-ends-with    | Only repositories whose directory ends with $1                                                        |
 | name-starts-with  | Only repositories whose directory starts with $1                                                      |
 | npm-prop          | Property $1 of package.json                                                                           |
 | path              | The full path to repo                                                                                 |
@@ -140,6 +142,7 @@ the following:
 | is-link           | Symbolic link, or no                                                                                |
 | is-npm            | This is an npm package                                                                              |
 | is-npm-private    | Is this a private package                                                                           |
+| name-ends-with    | Only repositories whose directory ends with $1                                                      |
 | name-starts-with  | Only repositories whose directory starts with $1                                                    |
 | path-contains     | Only repositories whose full path contains $1                                                       |
 | status            | filter by clean, dirty, or any combination of U (unstaged), A (added), M (modded) or D (deleted)    |

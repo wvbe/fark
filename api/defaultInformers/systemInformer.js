@@ -48,7 +48,14 @@ module.exports = {
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Only repositories whose directory starts with $1',
-			callback: ({ name }, query) => name.indexOf(query) === 0
+			callback: ({ name }, query) => name.startsWith(query)
+		},
+		{
+			name: 'name-ends-with',
+			type: propTypeBoolean,
+			isFilterable: true,
+			description: 'Only repositories whose directory ends with $1',
+			callback: ({ name }, query) => name.startsWith(query)
 		}
 	]
 };
