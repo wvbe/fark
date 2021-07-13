@@ -2,7 +2,7 @@ const glob = require('multi-glob').glob;
 const Gauge = require('gauge');
 
 const defaultPropType = {
-	format: (str) => str || null,
+	format: str => str || null,
 	compare: (a, b) => (typeof a === 'string' ? a.localeCompare(b) : 1)
 };
 
@@ -14,14 +14,14 @@ class Row {
 	}
 
 	getDataForColumn(column) {
-		const index = this.columns.findIndex((c) => c.name === column.name);
+		const index = this.columns.findIndex(c => c.name === column.name);
 
 		return this.getCellData()[index];
 	}
 
 	getCellData() {
 		if (!Array.isArray(this.cellData)) {
-			this.cellData = this.columns.map((prop) =>
+			this.cellData = this.columns.map(prop =>
 				prop.callback(this.informerData, ...prop.args)
 			);
 		}
@@ -57,11 +57,11 @@ module.exports = function getRowData(
 			glob(globbingPattern, (err, data) => (err ? rej(err) : res(data)))
 		)
 			// Get expensive info as cheaply as possible from the informer pool
-			.then((directories) =>
+			.then(directories =>
 				informerPool.retrieveForOptions(
 					directories,
-					columns.map((c) => c.name),
-					filters.map((f) => f.name),
+					columns.map(c => c.name),
+					filters.map(f => f.name),
 					(informers, directories) => {
 						const progress = ++finished / (informers.length * directories.length);
 						gauge.show(
@@ -76,21 +76,20 @@ module.exports = function getRowData(
 			)
 
 			// Filter irrelevant results based on the --filter option
-			.then((informerDatas) => {
+			.then(informerDatas => {
 				gauge.hide();
 
 				return informerDatas
-					.filter((informerData) =>
+					.filter(informerData =>
 						filters.every(
-							(filter) =>
-								filter.isNegation ===
-								!filter.callback(informerData, ...filter.arguments)
+							filter =>
+								filter.isNegation === !filter.callback(informerData, ...filter.args)
 						)
 					)
-					.map((data) => new Row(data.path, columns, data));
+					.map(data => new Row(data.path, columns, data));
 			})
 
-			.then((rows) =>
+			.then(rows =>
 				sortColumn
 					? rows.sort(
 							(a, b) =>
