@@ -137,7 +137,7 @@ module.exports = (informers = []) => {
 			.setDescription(
 				'Additional properties to show for each directory, see also the available Columns.'
 			)
-			.setDefault(['name', 'status'], true)
+			.setDefault(['name', 'git-branch', 'status'], true)
 			.setResolver((props) =>
 				props.map((propSpec) => {
 					const [name, ...args] = propSpec.split(':');
