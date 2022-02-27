@@ -17,29 +17,29 @@ module.exports = (informers = []) => {
 	function formatErrorMessageOfTypeNotFound(typeLabel, query, options) {
 		const possibleMatches = stringSimilarity
 			.findBestMatch(query, options)
-			.ratings.filter((result) => result.rating > 0)
+			.ratings.filter(result => result.rating > 0)
 			.sort((a, b) => b.rating - a.rating);
 
 		return (
 			`${typeLabel} "${query}" does not exist.` +
 			(possibleMatches.length
-				? ' Did you mean:\n\n' + possibleMatches.map((m) => '  - ' + m.target).join('\n')
+				? ' Did you mean:\n\n' + possibleMatches.map(m => '  - ' + m.target).join('\n')
 				: '')
 		);
 	}
 
 	app.addMiddleware = (optionName, short, description, preController) => {
 		app.addOption(new IsolatedOption(optionName).setShort(short).setDescription(description));
-		app.addPreController((req) =>
+		app.addPreController(req =>
 			req.options[optionName] ? Promise.resolve(preController(req)).then(() => false) : null
 		);
 	};
 
-	app.addMiddleware('help', 'h', 'Shows you this help page', (req) => {
+	app.addMiddleware('help', 'h', 'Shows you this help page', req => {
 		logTheHelpPage(req.command, informerPool, req.options.help === 'md');
 	});
 
-	app.addMiddleware('version', 'v', 'Gives the fark version', (req) => {
+	app.addMiddleware('version', 'v', 'Gives the fark version', req => {
 		console.log(require('../package.json').version);
 	});
 
@@ -51,8 +51,8 @@ module.exports = (informers = []) => {
 			.setShort('g')
 			.setDescription('Globbing pattern(s) for finding your projects. Defaults to "*".')
 			.setDefault(['*'], true)
-			.setResolver((patterns) =>
-				patterns.map((pattern) =>
+			.setResolver(patterns =>
+				patterns.map(pattern =>
 					pattern.charAt(pattern.length - 1) === '/' ? pattern : pattern + '/'
 				)
 			)
@@ -64,8 +64,8 @@ module.exports = (informers = []) => {
 			.setDescription(
 				'Show only results that match all given Filters. Use "~" to invert the filter response, and ":" for additional filter arguments.'
 			)
-			.setResolver((filters) =>
-				filters.map((filterSpec) => {
+			.setResolver(filters =>
+				filters.map(filterSpec => {
 					const isNegation = filterSpec.charAt(0) === '~';
 					const [name, ...args] = filterSpec.substr(isNegation ? 1 : 0).split(':');
 					const filter = informerPool.getFilter(name);
@@ -74,7 +74,7 @@ module.exports = (informers = []) => {
 							formatErrorMessageOfTypeNotFound(
 								'Filter',
 								name,
-								informerPool.getFilters().map((f) => f.name)
+								informerPool.getFilters().map(f => f.name)
 							)
 						);
 					}
@@ -94,7 +94,7 @@ module.exports = (informers = []) => {
 			.setDescription(
 				'Sort on this column. Use the negation character ("~") to inversely sort. Defaults to the first column.'
 			)
-			.setResolver((sort) => {
+			.setResolver(sort => {
 				if (typeof sort !== 'string') {
 					return {
 						prop: null
@@ -108,7 +108,7 @@ module.exports = (informers = []) => {
 						formatErrorMessageOfTypeNotFound(
 							'Sorting column',
 							name,
-							informerPool.getProps().map((f) => f.name)
+							informerPool.getProps().map(f => f.name)
 						)
 					);
 				}
@@ -138,8 +138,8 @@ module.exports = (informers = []) => {
 				'Additional properties to show for each directory, see also the available Columns.'
 			)
 			.setDefault(['name', 'git-branch', 'status'], true)
-			.setResolver((props) =>
-				props.map((propSpec) => {
+			.setResolver(props =>
+				props.map(propSpec => {
 					const [name, ...args] = propSpec.split(':');
 					const prop = informerPool.getProp(name);
 					if (!prop) {
@@ -147,7 +147,7 @@ module.exports = (informers = []) => {
 							formatErrorMessageOfTypeNotFound(
 								'Column',
 								name,
-								informerPool.getProps().map((f) => f.name)
+								informerPool.getProps().map(f => f.name)
 							)
 						);
 					}
@@ -166,7 +166,7 @@ module.exports = (informers = []) => {
 			.isInfinite(true)
 	);
 
-	app.setController(async (req) => {
+	app.setController(async req => {
 		const concurrentExecutionTasks = isNaN(parseInt(req.options.concurrent, 10))
 			? 10
 			: parseInt(req.options.concurrent, 10);
@@ -181,8 +181,8 @@ module.exports = (informers = []) => {
 		);
 
 		logTable(
-			req.options.columns.map((prop) => prop.name),
-			rowData.map((row) => row.getFormattedData()),
+			req.options.columns.map(prop => prop.name),
+			rowData.map(row => row.getFormattedData()),
 			!!req.options.nowrap
 		);
 
@@ -191,14 +191,14 @@ module.exports = (informers = []) => {
 			filterNames: req.options.filters.length
 				? req.options.filters
 						.map(
-							(filter) =>
+							filter =>
 								(filter.isNegation ? '~' : '') +
 								[filter.name, ...filter.args].join(':')
 						)
 						.join(', ')
 				: '-',
 			propNames: req.options.columns.length
-				? req.options.columns.map((prop) => prop.name).join(', ')
+				? req.options.columns.map(prop => prop.name).join(', ')
 				: req.options.columns.length,
 			time: Date.now() - timeStart + 'ms'
 		};
@@ -217,18 +217,26 @@ module.exports = (informers = []) => {
 		console.log('Executing "' + req.options.run.join(' ') + '"');
 
 		await throttledPromises(
-			rowData.map((result) => async () => ({
-				input: result,
-				output: await executeInDir(result.location, req.options.run)
-			})),
+			rowData.map(input => async () => {
+				try {
+					const output = await executeInDir(input.location, req.options.run);
+					return { input, output };
+				} catch (error) {
+					return { input, error };
+				}
+			}),
 			concurrentExecutionTasks,
-			({ input, output }, _rej, _index) => {
+			({ input, output, error }, _rejected, _index) => {
 				console.group();
 				console.log(input.location);
 				console.group();
-				output.forEach((message) =>
-					console[message.type === 'stderr' ? 'error' : 'log'](message.data)
-				);
+				if (error) {
+					console.error(error.stack);
+				} else {
+					output.forEach(message =>
+						console[message.type === 'stderr' ? 'error' : 'log'](message.data)
+					);
+				}
 				console.groupEnd();
 				console.groupEnd();
 			}

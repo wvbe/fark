@@ -7,11 +7,11 @@ module.exports = function throttlePromises(promiseCreators, maxPromises, onEach 
 		const index = promiseCreators.indexOf(createPromise);
 		busy.push(createPromise);
 		createPromise()
-			.then((resolved) => {
+			.then(resolved => {
 				finished[index] = { resolved };
 				onEach(resolved, undefined, index);
 			})
-			.catch((rejected) => {
+			.catch(rejected => {
 				finished[index] = { rejected };
 				onEach(undefined, rejected, index);
 			})
@@ -26,7 +26,7 @@ module.exports = function throttlePromises(promiseCreators, maxPromises, onEach 
 			});
 	}
 
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		if (!queue.length) {
 			return resolve(finished);
 		}
