@@ -11,16 +11,18 @@ module.exports = {
 
 	retrieve: (info, location) => {
 		try {
-			const manifest = JSON.parse(fs.readFileSync(path.join(location, 'package.json'), 'utf8'));
+			const manifest = JSON.parse(
+				fs.readFileSync(path.join(location, 'package.json'), 'utf8')
+			);
 			return {
 				// isNpm can only be true if the manifest describes the two minimum requirements: name and version
 				// https://docs.npmjs.com/getting-started/using-a-package.json
 				isNpm: !!(manifest.name && manifest.version),
 				npmPackageJson: manifest
-			}
+			};
 		} catch (e) {
 			return {
-				isNpm: false,
+				isNpm: false
 			};
 		}
 	},
@@ -30,7 +32,8 @@ module.exports = {
 			name: 'npm-prop',
 			type: propTypeString,
 			description: 'Property $1 of package.json',
-			callback: ({ isNpm, npmPackageJson }, propName) => (isNpm && propName && npmPackageJson[propName]) || null
+			callback: ({ isNpm, npmPackageJson }, propName) =>
+				(isNpm && propName && npmPackageJson[propName]) || null
 		},
 		{
 			name: 'is-npm-private',
@@ -52,7 +55,8 @@ module.exports = {
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'The package has been labelled with keyword $1',
-			callback: ({ isNpm, npmPackageJson }, keyword) => isNpm &&
+			callback: ({ isNpm, npmPackageJson }, keyword) =>
+				isNpm &&
 				Array.isArray(npmPackageJson.keywords) &&
 				npmPackageJson.keywords.includes(keyword)
 		},
@@ -61,9 +65,8 @@ module.exports = {
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'The package has an npm script called $1',
-			callback: ({ isNpm, npmPackageJson }, name) => isNpm &&
-				npmPackageJson.scripts &&
-				npmPackageJson.scripts[name]
+			callback: ({ isNpm, npmPackageJson }, name) =>
+				isNpm && npmPackageJson.scripts && npmPackageJson.scripts[name]
 		}
 	]
 };

@@ -1,5 +1,5 @@
 // Asynchronously resolves as many informers in parallel as the dependency tree allows
-function asyncMapInformersInDependencyOrder (informers, callback) {
+function asyncMapInformersInDependencyOrder(informers, callback) {
 	// The accumulated results stored by informer name
 	const results = {};
 
@@ -9,15 +9,17 @@ function asyncMapInformersInDependencyOrder (informers, callback) {
 	// Informers that are not yet pending or resolved
 	const queuedDependencies = informers.slice();
 
-	return new Promise(function iterate (resolve) {
+	return new Promise(function iterate(resolve) {
 		const readyDeps = queuedDependencies
-		// Find informers that have zero (unmet) dependencies so we can resolve them
+			// Find informers that have zero (unmet) dependencies so we can resolve them
 			.filter(informer => informer.dependencies.filter(dep => !results[dep]).length === 0);
 
 		// If there are no new tasks and nothing is pending, resolve with all informer data
 		if (!readyDeps.length && !pending.length) {
-			const mergedResults = Object.keys(results)
-				.reduce((merged, depName) => Object.assign(merged, results[depName]), {});
+			const mergedResults = Object.keys(results).reduce(
+				(merged, depName) => Object.assign(merged, results[depName]),
+				{}
+			);
 			return resolve(mergedResults);
 		}
 
@@ -29,10 +31,15 @@ function asyncMapInformersInDependencyOrder (informers, callback) {
 			pending.push(informer);
 
 			// Start async
-			Promise.resolve(callback(
+			Promise.resolve(
+				callback(
 					informer,
-					informer.dependencies.reduce((accum, depName) => Object.assign(accum, results[depName]), {})
-				))
+					informer.dependencies.reduce(
+						(accum, depName) => Object.assign(accum, results[depName]),
+						{}
+					)
+				)
+			)
 				.then(props => {
 					// Unregister as pending
 					pending.splice(pending.indexOf(informer), 1);
@@ -51,7 +58,7 @@ function asyncMapInformersInDependencyOrder (informers, callback) {
 }
 
 class InformerPool {
-	constructor (initial) {
+	constructor(initial) {
 		// Informers by name
 		this.informers = {};
 
@@ -60,67 +67,72 @@ class InformerPool {
 		}
 	}
 
-	registerInformer (importedObject) {
+	registerInformer(importedObject) {
 		this.informers[importedObject.name] = importedObject;
 	}
 
-	getInformer (name) {
-		return this.informers[name]
+	getInformer(name) {
+		return this.informers[name];
 	}
 
 	// A flat list of all informers
-	getInformers () {
+	getInformers() {
 		return Object.keys(this.informers).map(name => this.informers[name]);
 	}
 
 	// The subset of informers that provide any number of the named props and filters, and the total of dependency
 	// informers.
-	getInformersForOptions (propNames, filterNames) {
-		const optionProviders = this.getInformers()
-			.filter(informer => (
+	getInformersForOptions(propNames, filterNames) {
+		const optionProviders = this.getInformers().filter(
+			informer =>
 				(informer.props || []).some(p => propNames.includes(p.name)) ||
 				(informer.filters || []).some(p => filterNames.includes(p.name)) ||
-				(informer.props || []).filter(p => p.isFilterable).some(p => filterNames.includes(p.name))
-			));
+				(informer.props || [])
+					.filter(p => p.isFilterable)
+					.some(p => filterNames.includes(p.name))
+		);
 
 		return this.getDependenciesForInformers(optionProviders);
 	}
 
-	retrieveForOptions (directories, propNames, filterNames, forEachCallback) {
+	retrieveForOptions(directories, propNames, filterNames, forEachCallback) {
 		const informers = this.getInformersForOptions(propNames, filterNames);
 
-		return Promise.all(directories.map(directory => asyncMapInformersInDependencyOrder(informers, (informer, info) => {
-			forEachCallback(informers, directories, informer, directory);
-			return informer.retrieve(info, directory);
-		})));
+		return Promise.all(
+			directories.map(directory =>
+				asyncMapInformersInDependencyOrder(informers, (informer, info) => {
+					forEachCallback(informers, directories, informer, directory);
+					return informer.retrieve(info, directory);
+				})
+			)
+		);
 	}
 
 	// All available props
-	getProps () {
-		return this.getInformers()
-			.reduce((props, informer) => {
-				return props.concat(informer.props || []);
-			}, []);
+	getProps() {
+		return this.getInformers().reduce((props, informer) => {
+			return props.concat(informer.props || []);
+		}, []);
 	}
 
-	getProp (name) {
+	getProp(name) {
 		return this.getProps().find(prop => prop.name === name);
 	}
 
 	// All available filters
-	getFilters () {
-		return this.getInformers()
-			.reduce((props, informer) => {
-				return props.concat(informer.filters || [])
-					.concat((informer.props || []).filter(prop => prop.isFilterable));
-			}, []);
+	getFilters() {
+		return this.getInformers().reduce((props, informer) => {
+			return props
+				.concat(informer.filters || [])
+				.concat((informer.props || []).filter(prop => prop.isFilterable));
+		}, []);
 	}
 
-	getFilter (name) {
+	getFilter(name) {
 		return this.getFilters().find(filter => filter.name === name);
 	}
 
-	getDependenciesForInformers (informers) {
+	getDependenciesForInformers(informers) {
 		const wishList = informers.slice();
 
 		let newWishListItems = wishList.length;

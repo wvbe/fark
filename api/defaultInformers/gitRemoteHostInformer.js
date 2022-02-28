@@ -8,36 +8,55 @@ module.exports = {
 
 	dependencies: ['system'],
 
-	retrieve: ({ isGit, path }) => isGit ?
-		spawnProcess(path, ['git', 'remote', 'show'])
-			.then((messages) => {
-				// Get the list of remote names
-				const remoteNames = messages.reduce((list, message) => list.concat(message.data.trim().split('\n')), []);
+	retrieve: ({ isGit, path }) =>
+		isGit
+			? spawnProcess(path, ['git', 'remote', 'show'])
+					.then(messages => {
+						// Get the list of remote names
+						const remoteNames = messages.reduce(
+							(list, message) => list.concat(message.data.trim().split('\n')),
+							[]
+						);
 
-				// Perform "git config --get remote.origin.url" for every remote name
-				return Promise.all(remoteNames.map(remoteName => spawnProcess(path, [
-						'git',
-						'config',
-						'--get',
-						'remote.' + remoteName + '.url'
-					])
-					.then((messages) => messages.reduce((text, message) => text + message.data.trim(), []))
-				))
+						// Perform "git config --get remote.origin.url" for every remote name
+						return (
+							Promise.all(
+								remoteNames.map(remoteName =>
+									spawnProcess(path, [
+										'git',
+										'config',
+										'--get',
+										'remote.' + remoteName + '.url'
+									]).then(messages =>
+										messages.reduce(
+											(text, message) => text + message.data.trim(),
+											[]
+										)
+									)
+								)
+							)
 
-				// Combine the list of origin names and URLs into an object
-				.then((urls) => remoteNames.reduce((remotes, remoteName, i) => Object.assign(remotes, {
-					[remoteName]: urls[i]
-				}), {}));
-			})
+								// Combine the list of origin names and URLs into an object
+								.then(urls =>
+									remoteNames.reduce(
+										(remotes, remoteName, i) =>
+											Object.assign(remotes, {
+												[remoteName]: urls[i]
+											}),
+										{}
+									)
+								)
+						);
+					})
 
-			// Write the collected object to the "gitRemotes" property so props/filters and other informers can
-			// access it.
-			.then(gitRemotes => ({
-				gitRemotes
-			})):
-		{
-			gitRemotes: {}
-		},
+					// Write the collected object to the "gitRemotes" property so props/filters and other informers can
+					// access it.
+					.then(gitRemotes => ({
+						gitRemotes
+					}))
+			: {
+					gitRemotes: {}
+			  },
 
 	props: [
 		{
@@ -50,7 +69,10 @@ module.exports = {
 			name: 'git-remote-urls',
 			type: propTypeString,
 			description: 'The URLs of repository git remotes',
-			callback: ({ gitRemotes }) => Object.keys(gitRemotes).map(remoteName => gitRemotes[remoteName]).join(', ')
+			callback: ({ gitRemotes }) =>
+				Object.keys(gitRemotes)
+					.map(remoteName => gitRemotes[remoteName])
+					.join(', ')
 		},
 		{
 			name: 'git-remote-url',

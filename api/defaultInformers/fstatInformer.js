@@ -7,20 +7,21 @@ const propTypeDate = require('../propTypes/date');
 module.exports = {
 	name: 'stat',
 
-	dependencies: [
-		'system'
-	],
+	dependencies: ['system'],
 
-	retrieve: (data, location) => new Promise((res, rej) => fs.lstat(location, (e, stats) => {
-		return e ?
-			rej(e) :
-			res({
-				fstat: {
-					...stats,
-					isSymbolicLink: !!stats.isSymbolicLink()
-				}
-			});
-	})),
+	retrieve: (data, location) =>
+		new Promise((res, rej) =>
+			fs.lstat(location, (e, stats) => {
+				return e
+					? rej(e)
+					: res({
+							fstat: {
+								...stats,
+								isSymbolicLink: !!stats.isSymbolicLink()
+							}
+					  });
+			})
+		),
 
 	props: [
 		{
@@ -53,7 +54,8 @@ module.exports = {
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Assert wether file $1 exists',
-			callback: ({ fstat, path: codePath }, filePath) => fs.existsSync(path.join(codePath, filePath))
+			callback: ({ fstat, path: codePath }, filePath) =>
+				fs.existsSync(path.join(codePath, filePath))
 		}
 	]
 };

@@ -35,7 +35,6 @@ module.exports.defaultInformers = [
 	require('./defaultInformers/gitBranchInformer')
 ];
 
-
 /**
  * You don't have to use this, but here's a list of property types that deserved some extra love.
  *

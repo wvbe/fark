@@ -8,9 +8,9 @@
 // 	color.green + '✓' + color.reset :
 // 	color.red + '☓' + color.reset;
 
-const formatWithoutColor = bool => bool ? '✓' : '';
+const formatWithoutColor = bool => (bool ? '✓' : '');
 
 module.exports = {
 	format: formatWithoutColor,
-	compare: (a, b) => a === b ? 0 : (a ? -1 : 1)
+	compare: (a, b) => (a === b ? 0 : a ? -1 : 1)
 };

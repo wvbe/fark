@@ -1,5 +1,5 @@
 class Informer {
-	constructor (name) {
+	constructor(name) {
 		/**
 		 * Used as an identifier for informer dependencies. Not end-user facing.
 		 * @type {String}
@@ -30,9 +30,7 @@ class Informer {
 	 * @return {null|Object}       An object with exports to use in your props and filters, but also other informers
 	 *               that depend on you.
 	 */
-	retrieve (info, location) {
-
-	}
+	retrieve(info, location) {}
 }
 
 module.exports = Informer;

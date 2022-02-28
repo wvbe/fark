@@ -1,5 +1,5 @@
 class InformerCallback {
-	constructor (name) {
+	constructor(name) {
 		/**
 		 * End-user facing identifier for a prop (also called "column") or filter.
 		 * @type {String}
@@ -34,7 +34,7 @@ class InformerCallback {
 	 * @param {String[]} args    Whatever else the user passed as input separated from the name and each other by ":"s.
 	 * @return {String|Boolean|null}
 	 */
-	callback (info, ...args) {
+	callback(info, ...args) {
 		throw new Error('Not implemented.');
 	}
 }

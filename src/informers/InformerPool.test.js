@@ -1,18 +1,14 @@
 const InformerPool = require('./InformerPool');
 const informerPool = new InformerPool([
-	{ name: 'path',    dependencies: [],       retrieve: () => ({ a: 'bzt' }) },
-	{ name: 'test-1',  dependencies: ['path'], retrieve: (props) => ({ b: 'arf', received: props }) },
+	{ name: 'path', dependencies: [], retrieve: () => ({ a: 'bzt' }) },
+	{ name: 'test-1', dependencies: ['path'], retrieve: props => ({ b: 'arf', received: props }) },
 	{ name: 'test-1b', dependencies: ['path'], retrieve: () => ({ c: true }) },
 	{
 		name: 'test-2',
 		dependencies: ['derp'],
 		retrieve: () => true,
-		props: [
-			{ name: 'my-prop' }
-		],
-		filters: [
-			{ name: 'my-filter' }
-		]
+		props: [{ name: 'my-prop' }],
+		filters: [{ name: 'my-filter' }]
 	}
 ]);
 
@@ -27,20 +23,27 @@ describe('InformerPool', () => {
 
 	it('getDependenciesForInformers', () => {
 		// Load something without a dependency
-		expect(informerPool.getDependenciesForInformers([informerPool.getInformer('path')])).toHaveLength(1);
+		expect(
+			informerPool.getDependenciesForInformers([informerPool.getInformer('path')])
+		).toHaveLength(1);
 
 		// Load something with a dependency
-		expect(informerPool.getDependenciesForInformers([informerPool.getInformer('test-1')])).toHaveLength(2);
+		expect(
+			informerPool.getDependenciesForInformers([informerPool.getInformer('test-1')])
+		).toHaveLength(2);
 
 		// Attempt load something with a broken dependency
-		expect(() => informerPool.getDependenciesForInformers([informerPool.getInformer('test-2')])).toThrow();
+		expect(() =>
+			informerPool.getDependenciesForInformers([informerPool.getInformer('test-2')])
+		).toThrow();
 	});
 
 	it('runDependencyTree', () => {
 		expect.assertions(3);
 
 		// Raise whatever is necessary to get the "test-1" informer to work
-		return informerPool.runDependencyTree(
+		return informerPool
+			.runDependencyTree(
 				informerPool.getDependenciesForInformers([informerPool.getInformer('test-1')]),
 				(informer, props) => informer.retrieve(props)
 			)
@@ -67,7 +70,8 @@ describe('InformerPool', () => {
 	});
 
 	it('getFilters', () => {
-		expect(informerPool.getFilters().map(f => f.name))
-			.toEqual(expect.arrayContaining(['my-filter']));
+		expect(informerPool.getFilters().map(f => f.name)).toEqual(
+			expect.arrayContaining(['my-filter'])
+		);
 	});
 });

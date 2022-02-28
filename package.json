@@ -4,11 +4,11 @@
 	"description": "A command line tool to work with the mess that is your projects folder.",
 	"main": "./api/index.js",
 	"scripts": {
-		"update-readme": "node ./bin/fark-sparse -h md > README.tmp && rm README.md && mv README.tmp README.md",
+		"update-readme": "node ./bin/fark-sparse.js -h md > README.tmp && rm README.md && mv README.tmp README.md",
 		"prepublish": "npm run update-readme"
 	},
 	"bin": {
-		"fark": "./bin/fark"
+		"fark": "./bin/fark.js"
 	},
 	"repository": {
 		"type": "git",

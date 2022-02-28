@@ -8,37 +8,46 @@ module.exports = {
 
 	dependencies: ['system'],
 
-	retrieve: ({ isGit, path }) => isGit ?
-		spawnProcess(path, ['git', 'rev-list', '--left-right', '--count', 'HEAD...origin/HEAD'])
-			.then((messages) => {
-				if (messages.find(m => m.type === 'stderr')) {
-					return {
-						commitsAhead: null,
-						commitsBehind: null
+	retrieve: ({ isGit, path }) =>
+		isGit
+			? spawnProcess(path, [
+					'git',
+					'rev-list',
+					'--left-right',
+					'--count',
+					'HEAD...origin/HEAD'
+			  ]).then(messages => {
+					if (messages.find(m => m.type === 'stderr')) {
+						return {
+							commitsAhead: null,
+							commitsBehind: null
+						};
 					}
-				}
 
-				const [ahead, behind] = messages[0].data.split(/\s*/).map(num => parseInt(num, 10));
+					const [ahead, behind] = messages[0].data
+						.split(/\s*/)
+						.map(num => parseInt(num, 10));
 
-				return {
-					commitsAhead: ahead,
-					commitsBehind: behind
-				};
-			}) :
-		{
-			commitsAhead: null,
-			commitsBehind: null
-		},
+					return {
+						commitsAhead: ahead,
+						commitsBehind: behind
+					};
+			  })
+			: {
+					commitsAhead: null,
+					commitsBehind: null
+			  },
 
 	props: [
 		{
 			name: 'remote-status',
 			type: propTypeString,
 			description: 'The number of commits ahead and behind on the tracked remote branch',
-			callback: ({ commitsAhead, commitsBehind }) => [
-				'+' + (commitsAhead === null ? '?' : commitsAhead),
-				'-' + (commitsBehind === null ? '?' : commitsBehind)
-			].join(' ')
+			callback: ({ commitsAhead, commitsBehind }) =>
+				[
+					'+' + (commitsAhead === null ? '?' : commitsAhead),
+					'-' + (commitsBehind === null ? '?' : commitsBehind)
+				].join(' ')
 		},
 		{
 			name: 'is-git-ahead',

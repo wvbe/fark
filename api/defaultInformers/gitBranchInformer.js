@@ -2,7 +2,7 @@ const spawnProcess = require('../../src/primitives/executeInDir');
 const propTypeString = require('../propTypes/string');
 const propTypeBoolean = require('../propTypes/boolean');
 
-function createObjectForBranchOutputLine (line) {
+function createObjectForBranchOutputLine(line) {
 	if (!line.trim()) {
 		return;
 	}
@@ -21,7 +21,7 @@ function createObjectForBranchOutputLine (line) {
 		branchName: isRemote ? namePieces.slice(2).join('/') : namePieces.join('/'),
 		remoteName: isRemote ? namePieces[1] : null,
 		isCheckedOut
-	}
+	};
 }
 
 module.exports = {
@@ -29,15 +29,23 @@ module.exports = {
 
 	dependencies: ['system'],
 
-	retrieve: ({ isGit, path }) => isGit ?
-		spawnProcess(path, ['git', 'branch', '--list', '--no-color', '--all']).then((messages) => ({
-			gitBranches: messages.reduce((branches, message) => branches
-				.concat(message.data.split('\n')
-				.map(createObjectForBranchOutputLine)
-				.filter(b => !!b)
-			), [])
-		})) :
-		{ gitBranches: [] },
+	retrieve: ({ isGit, path }) =>
+		isGit
+			? spawnProcess(path, ['git', 'branch', '--list', '--no-color', '--all']).then(
+					messages => ({
+						gitBranches: messages.reduce(
+							(branches, message) =>
+								branches.concat(
+									message.data
+										.split('\n')
+										.map(createObjectForBranchOutputLine)
+										.filter(b => !!b)
+								),
+							[]
+						)
+					})
+			  )
+			: { gitBranches: [] },
 
 	props: [
 		{
@@ -54,29 +62,29 @@ module.exports = {
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Assert wether $1 is a branch on the local machine',
-			callback: ({ gitBranches }, branchName) => gitBranches.find(info => (
-				!info.remoteName &&
-				info.branchName === branchName
-			))
+			callback: ({ gitBranches }, branchName) =>
+				gitBranches.find(info => !info.remoteName && info.branchName === branchName)
 		},
 		{
 			name: 'has-remote-branch',
 			type: propTypeBoolean,
 			isFilterable: true,
-			description: 'Assert wether $1 is a branch on any of the remotes, or on remote $2 if the second argument is used.',
-			callback: ({ gitBranches }, branchName, remoteName) => gitBranches.find(info => (
-				(remoteName ? info.remoteName === remoteName : !!info.remoteName) &&
-				info.branchName === branchName
-			))
+			description:
+				'Assert wether $1 is a branch on any of the remotes, or on remote $2 if the second argument is used.',
+			callback: ({ gitBranches }, branchName, remoteName) =>
+				gitBranches.find(
+					info =>
+						(remoteName ? info.remoteName === remoteName : !!info.remoteName) &&
+						info.branchName === branchName
+				)
 		},
 		{
 			name: 'has-branch',
 			type: propTypeBoolean,
 			isFilterable: true,
 			description: 'Assert wether $1 is a branch on the local machine or any of the remotes',
-			callback: ({ gitBranches }, branchName) => gitBranches.find(info => (
-				info.branchName === branchName
-			))
+			callback: ({ gitBranches }, branchName) =>
+				gitBranches.find(info => info.branchName === branchName)
 		}
 	]
 };
